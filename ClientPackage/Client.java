@@ -45,7 +45,8 @@ public class Client {
                 String pseudo = scanner.nextLine();
                 out.writeUTF(pseudo);
                 response = in.readUTF();
-                if(response.equals("Vous êtes connecté")){
+                System.out.println(response);
+                if(response.equals("Vous êtes connecté.")){
                     Client client = new Client(clientSocket, pseudo);
                     ClientSendMsg clientSendMsg = new ClientSendMsg(client);
                     ClientReceiveMsg clientReceiveMsg = new ClientReceiveMsg(client);
@@ -56,7 +57,7 @@ public class Client {
                 }
             }
 
-            scanner.close();
+            //scanner.close();
         } catch (IOException e) {
             //LOGGER.log(Level.SEVERE, "Erreur", e);
         }

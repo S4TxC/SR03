@@ -23,9 +23,12 @@ public class ClientSendMsg extends Thread {
                 out = new DataOutputStream(this.client.getSocket().getOutputStream());
                 msg = scanner.nextLine();
                 out.writeUTF(msg);
+                Thread.sleep(500);
             } while (!"exit".equals(msg));
 
-        } catch (IOException e) {
+        scanner.close();
+
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

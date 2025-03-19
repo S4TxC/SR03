@@ -17,9 +17,10 @@ public class ClientReceiveMsg extends Thread {
             do {
                 in = new DataInputStream(this.client.getSocket().getInputStream());
                 System.out.println(in.readUTF());
+                Thread.sleep(500);
             } while (true);
 
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
