@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class Client {
-    private final Socket socket;
+    private Socket socket;
     private final String pseudo;
 
     public Client(Socket socket, String pseudo) {
@@ -25,6 +25,6 @@ public class Client {
     }
 
     public void setSocket(Socket socket) {
-        this.socket = socket
+        this.socket = socket;
     }
 }
