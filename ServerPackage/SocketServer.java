@@ -64,7 +64,7 @@ public class SocketServer extends Thread {
             this.client.close();
 
         } catch (IOException ex) {
-            System.err.println("client deconnecté ...");
+            System.err.println("Client déconnecté.");
         }
 
     }
@@ -79,7 +79,7 @@ public class SocketServer extends Thread {
                outs.writeUTF(pseudo+ " a dit : " + msg);
                outs.flush();
            } catch (IOException ex) {
-               System.err.println("client deconnecté ...");
+               System.err.println("Client déconnecté.");
            }
 
         }
@@ -90,25 +90,21 @@ public class SocketServer extends Thread {
 
         try {
             ServerSocket server=new ServerSocket(20000);
-
-            while(true) {
-                System.out.println("Serveur à l'écoute ......");
-                Socket  client=server.accept();
-                System.out.println(" nouveau client ...");
+            System.out.println("Serveur à l'écoute ......");
+            Socket client=server.accept();
+            System.out.println("Nouveau client ...");
 
 
-                DataInputStream ins=new DataInputStream(client.getInputStream());
-                DataOutputStream outs=new DataOutputStream(client.getOutputStream());
+            DataInputStream ins=new DataInputStream(client.getInputStream());
+            DataOutputStream outs=new DataOutputStream(client.getOutputStream());
 
-                String pseudo_client = ins.readUTF();
+            String pseudo_client = ins.readUTF();
 
-                SocketServer clientInServer = new SocketServer(client, pseudo_client);
-                clientInServer.start();
-            }
-
+            SocketServer clientInServer = new SocketServer(client, pseudo_client);
+            clientInServer.start();
 
         } catch (IOException ex) {
-            System.err.println("client deconnecté ...");
+            System.err.println("Client déconnecté.");
         }
     }
 
