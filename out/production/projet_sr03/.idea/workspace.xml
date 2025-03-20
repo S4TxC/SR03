@@ -6,9 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="f8c48bfa-e6a7-4e7f-adaf-2ffe9042a75d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ClientPackage/ClientReceiveMsg.java" beforeDir="false" afterPath="$PROJECT_DIR$/ClientPackage/ClientReceiveMsg.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ClientPackage/ClientSendMsg.java" beforeDir="false" afterPath="$PROJECT_DIR$/ClientPackage/ClientSendMsg.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ServerPackage/SocketServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/ServerPackage/SocketServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,33 +63,13 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
+    "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager">
-    <configuration name="Client" type="Application" factoryName="Application" singleton="false" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="ClientPackage.Client" />
-      <module name="projet_sr03" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="ClientPackage.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Application.Client" />
-      </list>
-    </recent_temporary>
-  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -111,7 +88,7 @@
       <updated>1742379664527</updated>
       <workItem from="1742379669869" duration="12996000" />
       <workItem from="1742399143072" duration="90000" />
-      <workItem from="1742481146962" duration="8018000" />
+      <workItem from="1742481146962" duration="1280000" />
     </task>
     <servers />
   </component>

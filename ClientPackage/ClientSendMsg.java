@@ -18,17 +18,15 @@ public class ClientSendMsg extends Thread {
         String msg = "";
 
         try {
-            DataOutputStream out;
+            DataOutputStream out = new DataOutputStream(this.client.getSocket().getOutputStream());;
             do {
-                out = new DataOutputStream(this.client.getSocket().getOutputStream());
                 msg = scanner.nextLine();
                 out.writeUTF(msg);
-                Thread.sleep(500);
             } while (!"exit".equals(msg));
 
         scanner.close();
 
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

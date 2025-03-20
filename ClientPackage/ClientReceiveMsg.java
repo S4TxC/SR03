@@ -13,15 +13,13 @@ public class ClientReceiveMsg extends Thread {
 
     public void run() {
         try {
-            DataInputStream in;
-            do {
-                in = new DataInputStream(this.client.getSocket().getInputStream());
+            DataInputStream in = new DataInputStream(this.client.getSocket().getInputStream());;
+            while (!this.client.getSocket().isClosed()) {
                 System.out.println(in.readUTF());
-                Thread.sleep(500);
-            } while (true);
+            }
 
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (IOException  e) {
+            System.out.println("Vous êtes déconnecté.");
         }
     }
 }
