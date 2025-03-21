@@ -12,6 +12,7 @@ import java.util.HashMap;
 public class SocketServer extends Thread {
     private final Socket client;
     private String pseudo;
+
     private static HashMap<String, Socket> clientsList = new HashMap<>();
 
     public SocketServer(Socket client, String pseudo) {
@@ -26,6 +27,7 @@ public class SocketServer extends Thread {
 
 
             for (int i = 3; i > 0 ; i--) {
+                this.pseudo = ins.readUTF();
                 if (clientsList.containsKey(this.pseudo)) {
                     outs.writeUTF("Ce pseudo existe déjà.\nVeuillez en saisir un nouveau.\nIl vous reste "+i+" tentative(s)");
                     outs.flush();
@@ -39,12 +41,9 @@ public class SocketServer extends Thread {
                     break;
                 }
 
-                this.pseudo = ins.readUTF();
 
                 if (i == 1) {
-                    outs.close();
-                    ins.close();
-                    this.client.close();
+                    this.closeClient(ins, outs);
                     return;
                 }
             }
@@ -53,9 +52,7 @@ public class SocketServer extends Thread {
                 response = ins.readUTF();
                 if (response.equals("exit")) {
                     clientsList.remove(this.pseudo);
-                    outs.close();
-                    ins.close();
-                    this.client.close();
+                    this.closeClient(ins, outs);
                     diffuse_msg("l’utilisateur "+ this.pseudo + " a quitté la conversation");
                     break;
                 } else {
@@ -64,14 +61,14 @@ public class SocketServer extends Thread {
                 }
             } while(true);
 
-            /*clientsList.remove(this.pseudo);
-            outs.close();
-            ins.close();
-            this.client.close();*/
-
         } catch (IOException ex) {
             System.err.println("Client déconnecté.");
             clientsList.remove(this.pseudo);
+            try {
+                this.client.close();
+            } catch (IOException e) {
+                //throw new RuntimeException(e);
+            }
         }
 
     }
@@ -88,6 +85,12 @@ public class SocketServer extends Thread {
         }
     }
 
+    private void closeClient(DataInputStream ins, DataOutputStream outs) throws IOException {
+        outs.close();
+        ins.close();
+        this.client.close();
+    }
+
 
     public static void main(String[] args) {
         try {
@@ -99,12 +102,12 @@ public class SocketServer extends Thread {
                 System.out.println("Nouveau client ...");
 
 
-                DataInputStream ins=new DataInputStream(client.getInputStream());
+                /*DataInputStream ins=new DataInputStream(client.getInputStream());
                 DataOutputStream outs=new DataOutputStream(client.getOutputStream());
 
-                String pseudo_client = ins.readUTF();
+                String pseudo_client = ins.readUTF();*/
 
-                SocketServer clientInServer = new SocketServer(client, pseudo_client);
+                SocketServer clientInServer = new SocketServer(client, "");
                 clientInServer.start();
             }
 

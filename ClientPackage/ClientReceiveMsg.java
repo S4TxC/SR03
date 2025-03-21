@@ -14,7 +14,7 @@ public class ClientReceiveMsg extends Thread {
     public void run() {
         try {
             DataInputStream in = new DataInputStream(this.client.getSocket().getInputStream());;
-            while (!this.client.getSocket().isClosed()) {
+            while (true) {
                 System.out.println(in.readUTF());
             }
         } catch (IOException  e) {
