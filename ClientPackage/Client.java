@@ -57,9 +57,9 @@ public class Client {
                 }
             }
 
-            //scanner.close();
+          //  scanner.close();
         } catch (IOException e) {
-            //LOGGER.log(Level.SEVERE, "Erreur", e);
+            System.err.println("Impossible de se connecter au serveur !");
         }
     }
 }

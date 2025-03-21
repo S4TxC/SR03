@@ -27,7 +27,7 @@ public class ClientSendMsg extends Thread {
         scanner.close();
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println("Le serveur n'est plus disponible.");
         }
     }
 }

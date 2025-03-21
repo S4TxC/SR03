@@ -17,7 +17,6 @@ public class ClientReceiveMsg extends Thread {
             while (!this.client.getSocket().isClosed()) {
                 System.out.println(in.readUTF());
             }
-
         } catch (IOException  e) {
             System.out.println("Vous êtes déconnecté.");
         }

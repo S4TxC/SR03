@@ -33,7 +33,9 @@ public class SocketServer extends Thread {
                     clientsList.put(this.pseudo, this.client);
                     outs.writeUTF("Vous êtes connecté.");
                     outs.flush();
-                    diffuse_msg("\n_______________________\n"+ this.pseudo + " a rejoint la conversation.");
+                    outs.writeUTF("\n_______________________\n");
+                    outs.flush();
+                    diffuse_msg(this.pseudo + " a rejoint la conversation.");
                     break;
                 }
 
@@ -50,6 +52,10 @@ public class SocketServer extends Thread {
             do {
                 response = ins.readUTF();
                 if (response.equals("exit")) {
+                    clientsList.remove(this.pseudo);
+                    outs.close();
+                    ins.close();
+                    this.client.close();
                     diffuse_msg("l’utilisateur "+ this.pseudo + " a quitté la conversation");
                     break;
                 } else {
@@ -58,10 +64,10 @@ public class SocketServer extends Thread {
                 }
             } while(true);
 
-            clientsList.remove(this.pseudo);
+            /*clientsList.remove(this.pseudo);
             outs.close();
             ins.close();
-            this.client.close();
+            this.client.close();*/
 
         } catch (IOException ex) {
             System.err.println("Client déconnecté.");
@@ -70,25 +76,20 @@ public class SocketServer extends Thread {
 
     }
 
-    public static void diffuse_msg(String msg) {
+    public static void diffuse_msg(String msg) throws IOException{
         Socket client;
         DataOutputStream outs;
         for (String pseudo : clientsList.keySet()) {
            client = clientsList.get(pseudo);
-           try {
-               outs =new DataOutputStream(client.getOutputStream());
-               outs.writeUTF(msg);
-               outs.flush();
-           } catch (IOException ex) {
-               System.err.println("Client déconnecté.");
-           }
+            outs =new DataOutputStream(client.getOutputStream());
+            outs.writeUTF(msg);
+            outs.flush();
 
         }
     }
 
 
     public static void main(String[] args) {
-
         try {
             ServerSocket server=new ServerSocket(20000);
             System.out.println("Serveur à l'écoute ......");
