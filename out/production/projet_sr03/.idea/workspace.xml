@@ -6,12 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="f8c48bfa-e6a7-4e7f-adaf-2ffe9042a75d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ClientPackage/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/ClientPackage/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ClientPackage/ClientReceiveMsg.java" beforeDir="false" afterPath="$PROJECT_DIR$/ClientPackage/ClientReceiveMsg.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ClientPackage/ClientSendMsg.java" beforeDir="false" afterPath="$PROJECT_DIR$/ClientPackage/ClientSendMsg.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ServerPackage/SocketServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/ServerPackage/SocketServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/projet_sr03/ClientPackage/ClientReceiveMsg.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/projet_sr03/ClientPackage/ClientReceiveMsg.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/projet_sr03/ServerPackage/SocketServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/projet_sr03/ServerPackage/SocketServer.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,6 +111,9 @@
       <workItem from="1742399143072" duration="90000" />
       <workItem from="1742481146962" duration="8237000" />
       <workItem from="1742551764928" duration="5294000" />
+      <workItem from="1742586216557" duration="5801000" />
+      <workItem from="1742807766573" duration="20000" />
+      <workItem from="1742817307147" duration="1177000" />
     </task>
     <servers />
   </component>

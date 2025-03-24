@@ -17,6 +17,7 @@ public class ClientSendMsg extends Thread {
         Scanner scanner = new Scanner(System.in);
         String msg = "";
 
+        //Attendre une entrée clavier de l'utilisateur tant qu'il ne souhaite pas stopper la conversation.
         try {
             DataOutputStream out = new DataOutputStream(this.client.getSocket().getOutputStream());;
             do {
@@ -26,6 +27,7 @@ public class ClientSendMsg extends Thread {
 
         scanner.close();
 
+            //Traitement de la déconnexion du serveur sans que le client soit prévenu.
         } catch (IOException e) {
             System.err.println("Le serveur n'est plus disponible.");
             scanner.close();

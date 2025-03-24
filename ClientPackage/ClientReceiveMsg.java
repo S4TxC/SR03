@@ -13,10 +13,13 @@ public class ClientReceiveMsg extends Thread {
 
     public void run() {
         try {
-            DataInputStream in = new DataInputStream(this.client.getSocket().getInputStream());;
+            DataInputStream in = new DataInputStream(this.client.getSocket().getInputStream());
+            //Attendre les messages du serveur et les afficher.
             while (true) {
                 System.out.println(in.readUTF());
             }
+
+            //Traitement de la déconnexion du serveur sans que le client soit prévenu.
         } catch (IOException  e) {
             System.out.println("Vous êtes déconnecté.");
         }

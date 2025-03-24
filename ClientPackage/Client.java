@@ -39,18 +39,25 @@ public class Client {
 
             Scanner scanner = new Scanner(System.in);
 
+            //Saisir un pseudo tant que le serveur refuse le pseudo saisie précedement.
             String response = "";
-            for(int i = 0; i < 4 ; i++){
+            for(int i = 0; i <= 3 ; i++){
                 System.out.println("Entrez un pseudo : ");
                 String pseudo = scanner.nextLine();
                 out.writeUTF(pseudo);
                 response = in.readUTF();
                 System.out.println(response);
+
+                //Le serveur a validé le pseudo.
                 if(response.equals("Vous êtes connecté.")){
+
+                    //Création d'un objet Client, ClientSendMsg et ClientReceiveMsg.
                     Client client = new Client(clientSocket, pseudo);
                     ClientSendMsg clientSendMsg = new ClientSendMsg(client);
                     ClientReceiveMsg clientReceiveMsg = new ClientReceiveMsg(client);
 
+                    //Lancement d'un thread pour envoyer au serveur les messages de l'utilisateur et un autre pour
+                    // intercepter les messages du serveur.
                     clientSendMsg.start();
                     clientReceiveMsg.start();
                     break;
