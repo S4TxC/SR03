@@ -48,7 +48,7 @@ public class SocketServer extends Thread {
                     outs.flush();
                     outs.writeUTF("\n_______________________\n");
                     outs.flush();
-                    diffuse_msg(this.pseudo + " a rejoint la conversation.");
+                    diffuseMsg(this.pseudo + " a rejoint la conversation.");
                     break;
                 }
             }
@@ -60,12 +60,12 @@ public class SocketServer extends Thread {
                 if (response.equals("exit")) {
                     clientsList.remove(this.pseudo);
                     this.closeClient(ins, outs);
-                    diffuse_msg("l’utilisateur "+ this.pseudo + " a quitté la conversation");
+                    diffuseMsg("l’utilisateur "+ this.pseudo + " a quitté la conversation");
                     break;
                 } else {
                     //Diffusion du message du client.
                     response = this.pseudo+ " a dit : " + response;
-                    diffuse_msg(response);
+                    diffuseMsg(response);
                 }
             } while(true);
 
@@ -75,7 +75,7 @@ public class SocketServer extends Thread {
             clientsList.remove(this.pseudo);
             try {
                 this.client.close();
-                diffuse_msg("l’utilisateur "+ this.pseudo + " a quitté la conversation");
+                diffuseMsg("l’utilisateur "+ this.pseudo + " a quitté la conversation");
             } catch (IOException e) {
                 //throw new RuntimeException(e);
             }
@@ -84,7 +84,7 @@ public class SocketServer extends Thread {
     }
 
     //Diffusion de msg sur tous les clients.
-    public static void diffuse_msg(String msg) throws IOException{
+    public static void diffuseMsg(String msg) throws IOException{
         Socket client;
         DataOutputStream outs;
         for (String pseudo : clientsList.keySet()) {
