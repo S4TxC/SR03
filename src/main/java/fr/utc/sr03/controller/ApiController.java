@@ -1,7 +1,7 @@
 package fr.utc.sr03.controller;
 
 
-import fr.utc.sr03.model.User;
+import fr.utc.sr03.model.Users;
 import fr.utc.sr03.services.JakartaEmail;
 import fr.utc.sr03.services.ServicesRequest;
 import jakarta.annotation.Resource;
@@ -22,15 +22,15 @@ public class ApiController {
     public void create(){
 
 
-        User user = new User();
-        user.setFirstname("Cédric");
-        user.setLastname("Martinet");
-        user.setMail("cedric.martinet@utc.fr");
+        Users user = new Users();
+        user.setName("Cédric");
+        user.setSurname("Martinet");
+        user.setEmail("cedric.martinet@utc.fr");
         servicesRequest.addUser(user);
     }
 
     @GetMapping(value = "/liste")
-    public List<User> getUsers(){
+    public List<Users> getUsers(){
         return servicesRequest.getUsers();
     }
 

@@ -1,9 +1,9 @@
-package src.main.java.fr.utc.sr03.model;
+package fr.utc.sr03.model;
 
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "UserChat")
+@Table(name = "user_chat")
 public class UserChat {
 
     @Id
@@ -13,7 +13,7 @@ public class UserChat {
 
     @ManyToOne
     @JoinColumn(name = "idu")
-    private User user;
+    private Users user;
 
     @ManyToOne
     @JoinColumn(name = "idc")
@@ -25,9 +25,9 @@ public class UserChat {
 
     public void setIduc(int iduc) {this.iduc = iduc;}
 
-    public User getUser() {return user;}
+    public Users getUser() {return user;}
 
-    public void setUser(User user) {this.user = user;}
+    public void setUser(Users user) {this.user = user;}
 
     public Chatroom getChatroom() {return chatroom;}
 

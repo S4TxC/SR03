@@ -1,10 +1,10 @@
-package src.main.java.fr.utc.sr03.model;
+package fr.utc.sr03.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Chatroom")
+@Table(name = "chatroom")
 public class Chatroom {
 
     @Id
