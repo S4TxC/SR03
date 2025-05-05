@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f8c48bfa-e6a7-4e7f-adaf-2ffe9042a75d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/controller/ApiController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/controller/ApiController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/controller/WebController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/controller/WebController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/model/UserChat.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/model/UserChat.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/model/Users.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/model/Users.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/users.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/users.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +143,8 @@
       <workItem from="1742817307147" duration="6507000" />
       <workItem from="1745829482240" duration="52000" />
       <workItem from="1746285786855" duration="8408000" />
-      <workItem from="1746294467917" duration="42000" />
+      <workItem from="1746294467917" duration="306000" />
+      <workItem from="1746433319783" duration="2924000" />
     </task>
     <servers />
   </component>

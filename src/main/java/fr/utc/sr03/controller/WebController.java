@@ -31,8 +31,8 @@ public class WebController {
 
 
         Users user = new Users();
-        user.setName("Cédric");
-        user.setSurname("Martinet");
+        user.setFirstname("Cédric");
+        user.setLastname("Martinet");
         user.setEmail("cedric.martinet@utc.fr");
         user.setPassword("monMotDePasse");
        // user.setInvite(0);

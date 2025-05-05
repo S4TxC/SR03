@@ -19,6 +19,10 @@ public class UserChat {
     @JoinColumn(name = "idc")
     private Chatroom chatroom;
 
+    @ManyToOne
+    @JoinColumn(name = "idinvit")
+    private Users idinvit;
+
     // Getters et Setters
 
     public int getIduc() {return iduc;}
@@ -32,4 +36,8 @@ public class UserChat {
     public Chatroom getChatroom() {return chatroom;}
 
     public void setChatroom(Chatroom chatroom) {this.chatroom = chatroom;}
+
+    public Users getIdinvit() {
+        return idinvit;
+    }
 }
