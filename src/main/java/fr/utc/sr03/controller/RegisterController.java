@@ -2,7 +2,7 @@ package fr.utc.sr03.controller;
 
 import fr.utc.sr03.dto.RegisterRequest;
 import fr.utc.sr03.model.Users;
-import fr.utc.sr03.repository.UsersRepository; // il manquait probablement cette importation
+import fr.utc.sr03.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
