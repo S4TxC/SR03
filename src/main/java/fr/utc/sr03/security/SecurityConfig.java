@@ -15,10 +15,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().permitAll()  // ✅ autorise toutes les requêtes sans authentification
+                        .anyRequest().permitAll()  // autorise toutes les requêtes sans authentification
                 )
                 .securityMatcher("/**") // inclut toutes les URL
-                .csrf(Customizer.withDefaults()) // pour rester compatible sans dépréciation
+                .csrf(Customizer.withDefaults())
                 .headers(Customizer.withDefaults())
                 .sessionManagement(Customizer.withDefaults());
 
