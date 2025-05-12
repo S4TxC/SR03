@@ -29,6 +29,9 @@ public class Users {
     @Column(name="avatar")
     private byte[] avatar;
 
+    @Column(name="status")
+    private boolean status;
+
 
     public int getId() {
         return id;
@@ -83,4 +86,11 @@ public class Users {
     }
 
 
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
 }

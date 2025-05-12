@@ -38,6 +38,12 @@
                 </label>
             </div>
 
+            <div class="input-control checkbox">
+                <label for="status">
+                    <input type="checkbox" id="status" name="status" th:checked="${user.isStatus()}" /> Actif
+                </label>
+            </div>
+
             <div class="form-actions">
                 <button type="submit" class="button primary">Sauvegarder les modifications</button>
                 <a href="/admin" class="button secondary">Annuler</a>

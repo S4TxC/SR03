@@ -31,6 +31,7 @@
             <th>Prénom</th>
             <th>Nom</th>
             <th>Email</th>
+            <th>Status</th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -40,6 +41,10 @@
             <td th:text="${user.firstname}"></td>
             <td th:text="${user.lastname}"></td>
             <td th:text="${user.email}"></td>
+            <td>
+                <span th:if="${user.status}" style="color:green;">&#10004;</span>
+                <span th:unless="${user.status}" style="color:red;">&#10006;</span>
+            </td>
             <td>
                 <a class="button small info" th:href="@{/admin/users/edit/{id}(id=${user.id})}">Éditer</a>
                 <a class="button small alert" th:href="@{/admin/users/delete/{id}(id=${user.id})}"

@@ -89,6 +89,7 @@ public class WebController {
         existingUser.setLastname(user.getLastname());
         existingUser.setEmail(user.getEmail());
         existingUser.setAdmin(user.isAdmin());
+        existingUser.setStatus(user.isStatus());
 
        servicesRequest.updateUser(existingUser); // Sauvegarder les modifications dans la DB
 

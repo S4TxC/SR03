@@ -5,18 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f8c48bfa-e6a7-4e7f-adaf-2ffe9042a75d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/resources/templates/admin.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/templates/editUser.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/controller/RegisterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/controller/RegisterController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/controller/WebController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/controller/WebController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/repository/UsersRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/repository/UsersRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/services/ServicesRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/services/ServicesRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/fr/utc/sr03/controller/WebController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/fr/utc/sr03/controller/WebController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/fr/utc/sr03/repository/UsersRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/fr/utc/sr03/repository/UsersRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/fr/utc/sr03/services/ServicesRequest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/fr/utc/sr03/services/ServicesRequest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/model/Users.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/fr/utc/sr03/model/Users.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/admin.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/admin.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/editUser.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/editUser.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/fr/utc/sr03/model/Users.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/fr/utc/sr03/model/Users.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/templates/admin.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/templates/admin.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -154,7 +149,8 @@
       <workItem from="1746294467917" duration="306000" />
       <workItem from="1746433319783" duration="2924000" />
       <workItem from="1746893218167" duration="8594000" />
-      <workItem from="1746958892319" duration="11537000" />
+      <workItem from="1746958892319" duration="12042000" />
+      <workItem from="1747038062279" duration="2053000" />
     </task>
     <servers />
   </component>
