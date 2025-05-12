@@ -5,6 +5,7 @@ fr/utc/sr03/model/Users.class
 fr/utc/sr03/controller/RegisterController.class
 fr/utc/sr03/controller/WebController.class
 fr/utc/sr03/websocket/WebSocketHandler.class
+fr/utc/sr03/controller/AdminController.class
 fr/utc/sr03/websocket/MessageSocket.class
 fr/utc/sr03/repository/UsersRepository.class
 fr/utc/sr03/services/JakartaEmail.class
