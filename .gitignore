@@ -11,5 +11,5 @@ Thumbs.db
 
 # Build
 /out/
-/target/
+target/
 /build/

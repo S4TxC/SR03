@@ -39,6 +39,7 @@ public class RegisterController {
         newUser.setEmail(request.getEmail());
         newUser.setPassword(passwordEncoder.encode(request.getPassword())); // hachage ici
         newUser.setAdmin(false); // par défaut non admin
+        newUser.setStatus(true);
 
         usersRepository.save(newUser);
         return "redirect:/register";
