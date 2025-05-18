@@ -5,10 +5,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface UsersRepository extends JpaRepository<Users, Long> {
     Users findByEmail(String email);
     Page<Users> findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCase(
             String firstname, String lastname, Pageable pageable);
+
+    List<Users> findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCase(
+            String firstname, String lastname);
 
     Page<Users> findByEmailContainingIgnoreCase(String email, Pageable pageable);
 

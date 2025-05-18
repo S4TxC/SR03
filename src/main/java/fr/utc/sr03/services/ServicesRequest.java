@@ -1,6 +1,8 @@
 package fr.utc.sr03.services;
 
 
+import fr.utc.sr03.model.Chatroom;
+import fr.utc.sr03.model.UserChat;
 import fr.utc.sr03.model.Users;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -34,6 +36,10 @@ public class ServicesRequest {
         return usersRepository.findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCase(search, search, pageRequest);
     }
 
+    public List<Users> searchUsers(String search) {
+        return usersRepository.findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCase(search, search);
+    }
+
     // Recherche de tous les utilisateurs avec pagination (sans critère de recherche)
     public Page<Users> getUsers(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
@@ -54,6 +60,20 @@ public class ServicesRequest {
 
     public void addUser(Users user){
         em.persist(user);
+    }
+
+    public void addChatroom(Chatroom chatroom){
+        em.persist(chatroom);
+    }
+
+    public List<UserChat> getChatroomsFromUserId(int userId) {
+        return em.createQuery("SELECT uc FROM UserChat uc WHERE uc.user.id = :userId", UserChat.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
+
+    public void addUserChat(UserChat userChat){
+        em.persist(userChat);
     }
 
     public void updateUser(Users user){

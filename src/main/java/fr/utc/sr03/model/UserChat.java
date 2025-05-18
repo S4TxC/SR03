@@ -27,8 +27,6 @@ public class UserChat {
 
     public int getIduc() {return iduc;}
 
-    public void setIduc(int iduc) {this.iduc = iduc;}
-
     public Users getUser() {return user;}
 
     public void setUser(Users user) {this.user = user;}
@@ -40,4 +38,6 @@ public class UserChat {
     public Users getIdinvit() {
         return idinvit;
     }
+
+    public void setIdinvit(Users user) {this.idinvit = user;}
 }
