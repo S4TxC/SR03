@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import jakarta.transaction.Transactional;
 import fr.utc.sr03.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 
 
 import java.util.List;
@@ -106,6 +107,20 @@ public class ServicesRequest {
         }
     }
 
+    // Récupère tous les utilisateurs avec tri (sans recherche)
+    public Page<Users> getUsersSorted(int page, int size, String sortField, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        return usersRepository.findAll(pageRequest);
+    }
+
+    // Recherche avec tri (par prénom, nom ou email)
+    public Page<Users> searchUsersSorted(String search, int page, int size, String sortField, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        return usersRepository.findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                search, search, search, pageRequest);
+    }
 
 
 

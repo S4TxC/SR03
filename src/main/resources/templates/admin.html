@@ -27,13 +27,30 @@
     <table class="table striped">
         <thead>
         <tr>
-            <th>ID</th>
-            <th>Prénom</th>
-            <th>Nom</th>
-            <th>Email</th>
+            <th>
+                <a th:href="@{/admin(sortField='id', sortDir=${sortField == 'id' and sortDir == 'asc' ? 'desc' : 'asc'}, search=${search}, page=${currentPage})}">
+                    ID <span th:if="${sortField == 'id'}" th:text="${sortDir == 'asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
+            <th>
+                <a th:href="@{/admin(sortField='firstname', sortDir=${sortField == 'firstname' and sortDir == 'asc' ? 'desc' : 'asc'}, search=${search}, page=${currentPage})}">
+                    Prénom <span th:if="${sortField == 'firstname'}" th:text="${sortDir == 'asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
+            <th>
+                <a th:href="@{/admin(sortField='lastname', sortDir=${sortField == 'lastname' and sortDir == 'asc' ? 'desc' : 'asc'}, search=${search}, page=${currentPage})}">
+                    Nom <span th:if="${sortField == 'lastname'}" th:text="${sortDir == 'asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
+            <th>
+                <a th:href="@{/admin(sortField='email', sortDir=${sortField == 'email' and sortDir == 'asc' ? 'desc' : 'asc'}, search=${search}, page=${currentPage})}">
+                    Email <span th:if="${sortField == 'email'}" th:text="${sortDir == 'asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
+        </thead>
         </thead>
         <tbody>
         <tr th:each="user : ${myusers}">

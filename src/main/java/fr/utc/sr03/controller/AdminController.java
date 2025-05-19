@@ -9,8 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 
 @Controller
 public class AdminController {
@@ -22,16 +20,18 @@ public class AdminController {
     public String adminPage(@RequestParam(value = "search", required = false) String search,
                             @RequestParam(value = "page", defaultValue = "0") int page,
                             @RequestParam(value = "size", defaultValue = "5") int size,
+                            @RequestParam(value = "sortField", defaultValue = "id") String sortField,
+                            @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir,
                             Model model) {
 
         Page<Users> users;
         int totalPages = 1;
 
         if (search != null && !search.isBlank()) {
-            users = servicesRequest.searchUsers(search, page, size);
+            users = servicesRequest.searchUsersSorted(search, page, size, sortField, sortDir);
             totalPages = servicesRequest.getTotalPagesForSearch(search, size);
         } else {
-            users = servicesRequest.getUsers(page, size);
+            users = servicesRequest.getUsersSorted(page, size, sortField, sortDir);
             totalPages = servicesRequest.getTotalPages(size);
         }
 
@@ -39,6 +39,9 @@ public class AdminController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("search", search);
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
 
         int previousPage = (page > 0) ? page - 1 : 0;
         int nextPage = (page + 1 < totalPages) ? page + 1 : totalPages - 1;
@@ -48,6 +51,7 @@ public class AdminController {
 
         return "admin";
     }
+
 
     @GetMapping("/admin/users/delete/{id}")
     public String deleteUser(@PathVariable int id,
@@ -65,7 +69,7 @@ public class AdminController {
         Users user = servicesRequest.getOneUser(id);
 
         model.addAttribute("user", user);
-        return "editUser";
+        return "editUserAdmin";
     }
 
     @PostMapping("/admin/users/update/{id}")
