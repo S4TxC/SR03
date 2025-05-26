@@ -3,25 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Admin - Liste des utilisateurs</title>
-    <link rel="stylesheet" href="https://cdn.metroui.org.ua/current/metro.css">
+    <!--<link rel="stylesheet" href="https://cdn.metroui.org.ua/current/metro.css">-->
+    <link rel="stylesheet" href="/css/AdminInterface.css">
 </head>
 <body>
 
 <header class="app-bar">
-    <div class="container">
-        <h1>Administration - Utilisateurs</h1>
-    </div>
+    <a href="/admin" style="color: inherit; text-decoration: none; cursor: pointer;">
+    <h1>Administration - Utilisateurs</h1>
+    </a>
 </header>
 
 <main class="container mt-4">
 
-    <div class="d-flex flex-justify-between mb-2">
-        <!-- Formulaire de recherche -->
-        <form th:action="@{/admin}" method="get" class="d-flex">
-            <input type="text" name="search" placeholder="Rechercher..." th:value="${search}" />
-            <button type="submit" class="button ml-2">Rechercher</button>
-        </form>
-    </div>
+    <form th:action="@{/admin}" method="get" class="search-bar">
+        <input type="search" name="search" placeholder="Rechercher..." th:value="${search}" />
+        <button type="submit" class="button">Rechercher</button>
+    </form>
 
     <!-- Tableau des utilisateurs -->
     <table class="table striped">
@@ -50,7 +48,6 @@
             <th>Status</th>
             <th>Actions</th>
         </tr>
-        </thead>
         </thead>
         <tbody>
         <tr th:each="user : ${myusers}">
@@ -92,10 +89,10 @@
 
 </main>
 
-<footer class="app-bar fixed-bottom bg-dark fg-white p-2 text-center">
-    <span>&copy; 2025 - Admin Panel</span>
+<footer class="app-bar">
+    <span>&copy; 2025 - Admin Interface</span>
 </footer>
 
-<script src="https://cdn.metroui.org.ua/current/metro.js"></script>
+<!--<script src="https://cdn.metroui.org.ua/current/metro.js"></script>-->
 </body>
 </html>

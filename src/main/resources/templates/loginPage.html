@@ -2,12 +2,13 @@
 <html lang="en" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/Form.css">
     <title>Login</title>
 </head>
 <body>
-<h1>Login</h1>
 
 <form action="#" th:action="@{/login}" th:object="${loginRequest}" method="post">
+    <h1>Login</h1>
     <div>
         <label for="email">Email</label>
         <input type="email" th:field="*{email}" id="email" placeholder="Enter your email" />
