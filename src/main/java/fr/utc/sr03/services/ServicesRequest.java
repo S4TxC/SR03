@@ -73,6 +73,8 @@ public class ServicesRequest {
                 .getResultList();
     }
 
+
+
     public void addUserChat(UserChat userChat){
         em.persist(userChat);
     }
