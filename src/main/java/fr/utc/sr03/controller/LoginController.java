@@ -1,7 +1,10 @@
 package fr.utc.sr03.controller;
 
 import fr.utc.sr03.dto.LoginRequest;
+import fr.utc.sr03.model.Users;
 import fr.utc.sr03.repository.UsersRepository;
+import fr.utc.sr03.services.SessionService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -18,6 +21,9 @@ public class LoginController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private SessionService sessionService;
+
     @GetMapping("/login")
     public String loginPage(Model model) {
         model.addAttribute("loginRequest", new LoginRequest());
@@ -25,17 +31,23 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String login(LoginRequest loginRequest, Model model) {
-        var user = usersRepository.findByEmail(loginRequest.getEmail());
+    public String login(LoginRequest loginRequest, Model model, HttpSession session) {
+        Users user = usersRepository.findByEmail(loginRequest.getEmail());
 
-        // Vérifie si l'utilisateur existe et si le mot de passe est correct
-        if (user != null && user.isAdmin() && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            return "redirect:/admin";  // Redirige vers la page d'admin si l'utilisateur est un admin
+        if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            // Crée la session avec les infos importantes
+            sessionService.createSession(session, user);
+            return user.isAdmin() ? "redirect:/admin" : "redirect:/home";
         }
 
-        // Si login échoue, retourne la page de login avec un message d'erreur
         model.addAttribute("loginRequest", loginRequest);
         model.addAttribute("error", true);
         return "loginPage";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
     }
 }

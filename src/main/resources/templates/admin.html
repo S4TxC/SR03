@@ -6,13 +6,43 @@
     <!--<link rel="stylesheet" href="https://cdn.metroui.org.ua/current/metro.css">-->
     <link rel="stylesheet" href="/css/AdminInterface.css">
 </head>
+
+<script>
+    function toggleProfileMenu() {
+        const menu = document.getElementById("profileMenu");
+        menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById("profileMenu");
+        const profileImg = document.querySelector("header img");
+        if (!profileImg.contains(event.target) && !menu.contains(event.target)) {
+            menu.style.display = "none";
+        }
+    });
+</script>
+
+
 <body>
 
-<header class="app-bar">
+<header class="app-bar" style="display: flex; justify-content: space-between; align-items: center;">
     <a href="/admin" style="color: inherit; text-decoration: none; cursor: pointer;">
-    <h1>Administration - Utilisateurs</h1>
+        <h1>Administration - Utilisateurs</h1>
     </a>
+
+    <div style="position: relative;">
+        <img src="/img/default-profile.jpeg"
+             alt="Profil"
+             style="width: 60px; height: 60px; border-radius: 50%; cursor: pointer;"
+             onclick="toggleProfileMenu()" />
+
+        <div id="profileMenu" class="profile-menu">
+            <p th:text="${userFullName}" class="profile-name"></p>
+            <a href="/logout" style="color: white; class=logout-link"> Se déconnecter</a>
+        </div>
+    </div>
 </header>
+
 
 <main class="container mt-4">
 
