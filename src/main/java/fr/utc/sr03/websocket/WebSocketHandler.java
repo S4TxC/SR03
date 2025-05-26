@@ -18,11 +18,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private final String nameChat;
     private final Logger logger = Logger.getLogger(WebSocketHandler.class.getName());
     private final HashMap<String, List<WebSocketSession>> sessions;
-    private final HashMap<String, List<MessageSocket>> messageSocketsHistory;
+  //  private final HashMap<String, List<MessageSocket>> messageSocketsHistory;
 
     public WebSocketHandler(String nameChat) {
         this.nameChat = nameChat;
-        this.messageSocketsHistory = new HashMap<>();
+       // this.messageSocketsHistory = new HashMap<>();
         this.sessions = new HashMap<>();
     }
 
@@ -35,33 +35,33 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String roomName = getRoomName(session);
         List<MessageSocket> listMessage;
 
-        //Pour stocker le message dans l'historique
+        /*//Pour stocker le message dans l'historique
         if (messageSocketsHistory.containsKey(roomName)) {
             listMessage = messageSocketsHistory.get(roomName);
         } else {
             listMessage = new ArrayList<>();
         }
         listMessage.add(messageSocket);
-        messageSocketsHistory.put(roomName, listMessage);
+        messageSocketsHistory.put(roomName, listMessage);*/
         //messageSocketsHistory.add(messageSocket);
 
         //Envoi du message à tous les connectés
         this.broadcast(roomName, messageSocket.getUser()+ " : " + messageSocket.getMessage());
-
     }
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
         //On stocke la session du client dans une liste
         String roomName = getRoomName(session);
+        String userName = getuserName(session);
         List<WebSocketSession> listSessions;
 
         if (sessions.containsKey(roomName)) {
             listSessions = sessions.get(roomName);
-            listSessions.add(session);
         } else {
             listSessions = new ArrayList<>();
-            listSessions.add(session);
         }
+        if (!listSessions.isEmpty()) this.broadcast(roomName, userName+" vient de se connecter !");
+        listSessions.add(session);
         sessions.put(roomName, listSessions);
       //  sessions.add(session);
         logger.info(session.getId());
@@ -70,20 +70,24 @@ public class WebSocketHandler extends TextWebSocketHandler {
         for(MessageSocket messageSocket : messageSocketsHistory){
             session.sendMessage(new TextMessage(messageSocket.getUser()+ " : " + messageSocket.getMessage()));
         }*/
-
-        logger.info("Connecté sur le " + roomName);
+        logger.info(userName+" vient de se connecter sur "+ roomName);
 
     }
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws IOException {
         String roomName = getRoomName(session);
+        String userName = getuserName(session);
         List<WebSocketSession> listSession =  sessions.get(roomName);
         listSession.remove(session);
-
-        //Quand le client quitte, on retire sa session
-        sessions.put(roomName, listSession);
+        if (listSession.isEmpty()) {
+            sessions.remove(roomName);
+        } else {
+            //Quand le client quitte, on retire sa session
+            sessions.put(roomName, listSession);
+            this.broadcast(roomName, userName+" vient de se déconnecter !");
+        }
         //sessions.remove(session);
-        logger.info("Déconnecté du " + this.nameChat);
+        logger.info(userName+" vient de se déconnecter de "+ roomName);
 
     }
 
@@ -96,9 +100,29 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     private static String getRoomName(WebSocketSession session) {
         String query = session.getUri().getQuery();
+        String res = "";
         if (query != null && query.startsWith("room=")) {
-            return query.substring(5);
+            for (int i = 5; query.charAt(i) != '?'; i++) {
+                res += query.charAt(i);
+            }
+            return res;
         }
         return "default";
     }
+
+    private static String getuserName(WebSocketSession session) {
+        String query = session.getUri().getQuery();
+        String res = "";
+        if (query != null) {
+            int index = query.indexOf("user");
+            if (index != -1) {
+                for (int i = index+5; i < query.length(); i++) {
+                    res += query.charAt(i);
+                }
+                return res;
+            }
+        }
+        return "default";
+    }
+
 }
