@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Login.css';
 
 const Login = () => {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -15,15 +17,16 @@ const Login = () => {
                 { email, password },
                 {
                     withCredentials: true,
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 'Content-Type': 'application/json' },
                 }
             );
 
-            console.log('Login success', response.data);
+            localStorage.setItem('user', JSON.stringify(response.data));
+
             if (response.data.isAdmin) {
-                window.location.href = '/admin';
+                window.location.href = 'http://localhost:8080/admin';
             } else {
-                window.location.href = '/home';
+                navigate('/home');
             }
         } catch (err) {
             console.error('Login error', err);
@@ -35,7 +38,6 @@ const Login = () => {
         <div className="login-form-container">
             <form onSubmit={handleSubmit} className="login-form">
                 <h1>Login</h1>
-
                 <div className="form-group">
                     <label htmlFor="email">Email</label>
                     <input
@@ -47,7 +49,6 @@ const Login = () => {
                         required
                     />
                 </div>
-
                 <div className="form-group">
                     <label htmlFor="password">Password</label>
                     <input
@@ -59,11 +60,9 @@ const Login = () => {
                         required
                     />
                 </div>
-
                 <div className="form-group">
                     <input type="submit" value="Login" />
                 </div>
-
                 {error && (
                     <div className="error-message" style={{ color: 'red' }}>
                         <p>{error}</p>

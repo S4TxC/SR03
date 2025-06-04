@@ -1,48 +1,74 @@
+body {
+    background-color: #f2f4f8;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #2c3e50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
 .login-form-container {
     width: 100%;
     max-width: 400px;
-    margin: 60px auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #fafafa;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    padding: 2.5rem 3rem;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
 }
 
 .login-form h1 {
+    color: #2d89ef;
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: 2rem;
 }
 
 .form-group {
-    margin-bottom: 16px;
+    margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
 }
 
 .form-group label {
-    margin-bottom: 6px;
-    font-weight: bold;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2c3e50;
 }
 
 .form-group input[type="email"],
-.form-group input[type="password"],
-.form-group input[type="submit"] {
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #bbb;
-    border-radius: 4px;
+.form-group input[type="password"] {
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border: 1.5px solid #ccc;
+    border-radius: 10px;
+    transition: border-color 0.3s ease;
+    color: #222;
+    box-sizing: border-box;
+}
+
+.form-group input[type="email"]:focus,
+.form-group input[type="password"]:focus {
+    border-color: #2d89ef;
+    outline: none;
 }
 
 .form-group input[type="submit"] {
-    background-color: #4285f4;
+    padding: 0.75rem;
+    background-color: #2d89ef;
+    border: none;
+    border-radius: 12px;
     color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.3s ease;
 }
 
 .form-group input[type="submit"]:hover {
-    background-color: #357ae8;
+    background-color: #1b5fbd;
 }
 
 .error-message p {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 const Chat = () => {
     const [messages, setMessages] = useState([]);
@@ -6,22 +6,12 @@ const Chat = () => {
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-        const websocket = new WebSocket('ws://localhost:8080/salon?room=1&user=TEST');
-
+        const websocket = new WebSocket('ws://localhost:8080/ws/chat?room=1&user=TEST');
         websocket.onopen = () => console.log('WebSocket is connected');
-
-        websocket.onmessage = (evt) => {
-            const message = evt.data;
-            setMessages(prev => [...prev, message]);
-        };
-
+        websocket.onmessage = (evt) => setMessages(prev => [...prev, evt.data]);
         websocket.onclose = () => console.log('WebSocket is closed');
-
         setWs(websocket);
-
-        return () => {
-            websocket.close();
-        };
+        return () => websocket.close();
     }, []);
 
     const sendMessage = () => {
@@ -31,16 +21,12 @@ const Chat = () => {
         }
     };
 
-    const handleInputChange = (e) => {
-        setMessage(e.target.value);
-    };
-
     return (
         <div className="App">
             <header className="App-header">
                 <h1>Interface chat</h1>
                 {messages.map((msg, idx) => <p key={idx}>{msg}</p>)}
-                <input type="text" value={message} onChange={handleInputChange} />
+                <input type="text" value={message} onChange={e => setMessage(e.target.value)} />
                 <br />
                 <button onClick={sendMessage}>Envoyer</button>
             </header>
