@@ -1,4 +1,4 @@
-package fr.utc.sr03.controller;
+package fr.utc.sr03.controller.admin;
 
 import fr.utc.sr03.dto.LoginRequest;
 import fr.utc.sr03.model.Users;
@@ -48,6 +48,6 @@ public class LoginController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/login";
+        return "redirect:http://localhost:3000/login";
     }
 }

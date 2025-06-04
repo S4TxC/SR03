@@ -1,4 +1,4 @@
-package fr.utc.sr03.controller;
+package fr.utc.sr03.controller.admin;
 
 import fr.utc.sr03.dto.RegisterRequest;
 import fr.utc.sr03.model.Users;
@@ -42,6 +42,6 @@ public class RegisterController {
         newUser.setStatus(true);
 
         usersRepository.save(newUser);
-        return "redirect:/register";
+        return "redirect:http://localhost:8080/admin";
     }
 }

@@ -21,4 +21,6 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
             String firstname, String lastname, String email, Pageable pageable);
 
     long countByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCase(String firstname, String lastname);
+
+    Long email(String email);
 }

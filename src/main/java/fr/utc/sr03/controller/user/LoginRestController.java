@@ -1,0 +1,67 @@
+package fr.utc.sr03.controller.user;
+
+import fr.utc.sr03.dto.LoginRequest;
+import fr.utc.sr03.model.Users;
+import fr.utc.sr03.repository.UsersRepository;
+import fr.utc.sr03.services.SessionService;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+import java.util.HashMap;
+
+@RestController
+@RequestMapping("/api/auth")
+public class LoginRestController {
+
+    @Autowired
+    private UsersRepository usersRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private SessionService sessionService;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
+        Users user = usersRepository.findByEmail(loginRequest.getEmail());
+
+        if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            sessionService.createSession(session, user);
+            return ResponseEntity.ok().body("Successfully logged in");
+        }
+
+        return ResponseEntity.status(401).body("Invalid credentials");
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok().body("Successfully logged out");
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body("Not connected");
+        }
+        Users user = usersRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(404).body("User not found");
+        }
+
+        Map<String, Object> safeUserData = new HashMap<>();
+        safeUserData.put("id", user.getId());
+        safeUserData.put("firstname", user.getFirstname());
+        safeUserData.put("lastname", user.getLastname());
+        safeUserData.put("email", user.getEmail());
+        safeUserData.put("isAdmin", user.isAdmin());
+
+        return ResponseEntity.ok(safeUserData);
+    }
+
+}

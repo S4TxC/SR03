@@ -1,4 +1,4 @@
-package fr.utc.sr03.controller;
+package fr.utc.sr03.controller.admin;
 
 
 import fr.utc.sr03.model.Users;

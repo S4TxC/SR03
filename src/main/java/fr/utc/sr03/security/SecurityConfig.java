@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -14,13 +15,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().permitAll()  // autorise toutes les requêtes sans authentification
+                .csrf(csrf -> csrf
+                        // Désactive CSRF uniquement pour les URLs /api/**
+                        .ignoringRequestMatchers("/api/**")
+                        // Conserve CSRF pour le reste (ex. Thymeleaf)
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 )
-                .securityMatcher("/**") // inclut toutes les URL
-                .csrf(Customizer.withDefaults())
-                .headers(Customizer.withDefaults())
-                .sessionManagement(Customizer.withDefaults());
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/api/**").permitAll()
+                        .anyRequest().permitAll()
+                )
+                .sessionManagement(Customizer.withDefaults())
+                .headers(Customizer.withDefaults());
 
         return http.build();
     }
