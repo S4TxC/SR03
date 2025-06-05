@@ -8,7 +8,7 @@ const PrivateRoute = ({ children, requireAdmin = false }) => {
         return <Navigate to="/login" />;
     }
     if (requireAdmin && !user.isAdmin) {
-        return <Navigate to="/home" />;
+        return <Navigate to="/chat" />;
     }
     return children;
 };

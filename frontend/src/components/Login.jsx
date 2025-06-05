@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './Login.css';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -26,7 +25,7 @@ const Login = () => {
             if (response.data.isAdmin) {
                 window.location.href = 'http://localhost:8080/admin';
             } else {
-                navigate('/home');
+                navigate('/chat');
             }
         } catch (err) {
             console.error('Login error', err);
@@ -35,11 +34,19 @@ const Login = () => {
     };
 
     return (
-        <div className="login-form-container">
-            <form onSubmit={handleSubmit} className="login-form">
-                <h1>Login</h1>
-                <div className="form-group">
-                    <label htmlFor="email">Email</label>
+        <div className="flex justify-center items-center h-screen bg-gray-100 text-gray-800 font-sans">
+            <form
+                onSubmit={handleSubmit}
+                className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-md"
+            >
+                <h1 className="text-3xl text-blue-600 text-center mb-8 font-semibold">
+                    Login
+                </h1>
+
+                <div className="mb-6 flex flex-col">
+                    <label htmlFor="email" className="mb-2 font-semibold">
+                        Email
+                    </label>
                     <input
                         type="email"
                         id="email"
@@ -47,10 +54,14 @@ const Login = () => {
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                         required
+                        className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     />
                 </div>
-                <div className="form-group">
-                    <label htmlFor="password">Password</label>
+
+                <div className="mb-6 flex flex-col">
+                    <label htmlFor="password" className="mb-2 font-semibold">
+                        Password
+                    </label>
                     <input
                         type="password"
                         id="password"
@@ -58,13 +69,18 @@ const Login = () => {
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         required
+                        className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     />
                 </div>
-                <div className="form-group">
-                    <input type="submit" value="Login" />
-                </div>
+
+                <input
+                    type="submit"
+                    value="Login"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl cursor-pointer transition-colors duration-300"
+                />
+
                 {error && (
-                    <div className="error-message" style={{ color: 'red' }}>
+                    <div className="text-red-600 text-center font-bold mt-4">
                         <p>{error}</p>
                     </div>
                 )}
