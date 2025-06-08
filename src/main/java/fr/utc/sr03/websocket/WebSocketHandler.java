@@ -53,12 +53,13 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
         HttpSession httpSession = (HttpSession) session.getAttributes().get("HTTP.SESSION");
-        String userName = "default";
+        //String userName = "default";
+        String userName = getuserName(session);
 
         if (httpSession != null) {
-            Object userId = httpSession.getAttribute("userId");  // clé selon ton app
+            Object userId = httpSession.getAttribute("userId");
             if (userId != null) {
-                userName = userId.toString(); // ou autre donnée utilisateur
+                userName = userId.toString();
             }
         }
 

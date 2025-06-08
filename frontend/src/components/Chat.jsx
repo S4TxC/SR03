@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
+import {useParams} from "react-router-dom";
 
 const Chat = () => {
+    const { id } = useParams();
+    const userJson = localStorage.getItem('user');
+    const user = userJson ? JSON.parse(userJson) : null;
+
     const [messages, setMessages] = useState([]);
     const [ws, setWs] = useState(null);
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-        const websocket = new WebSocket('ws://localhost:8080/ws/chat?room=1&user=TEST');
+        const websocket = new WebSocket(`ws://localhost:8080/ws/chat?room=${id}&user=${user.name}`);
         websocket.onopen = () => console.log('WebSocket is connected');
         websocket.onmessage = (evt) => setMessages(prev => [...prev, evt.data]);
         websocket.onclose = () => console.log('WebSocket is closed');
@@ -16,7 +21,7 @@ const Chat = () => {
 
     const sendMessage = () => {
         if (ws && message.trim() !== '') {
-            ws.send(JSON.stringify({ user: 'Cédric', message }));
+            ws.send(JSON.stringify({ user: user.name, message }));
             setMessage('');
         }
     };

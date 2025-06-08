@@ -1,6 +1,7 @@
 package fr.utc.sr03.controller;
 
 import fr.utc.sr03.dto.ChatroomRequest;
+import fr.utc.sr03.dto.UsersDTO;
 import fr.utc.sr03.model.Chatroom;
 import fr.utc.sr03.model.UserChat;
 import fr.utc.sr03.model.Users;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +25,7 @@ public class ChatroomRestController {
     private ServicesRequest servicesRequest;
 
 
-    @GetMapping("/create")
+   /* @GetMapping("/create")
     public ResponseEntity<Map<String, Object>> getCreateChatroomData(
             @RequestParam(value = "search", required = false) String search) {
 
@@ -39,9 +41,27 @@ public class ChatroomRestController {
         response.put("users", users);
 
         return ResponseEntity.ok(response); // réponse JSON
+    }*/
+
+    @GetMapping("/allChatrooms")
+    public ResponseEntity<List<Chatroom>> getAllUsersChatrooms(
+            @RequestParam(value = "id", required = true) int usersId) {
+        return ResponseEntity.ok(servicesRequest.getChatroomsFromUserId(usersId));
     }
 
-    @PostMapping
+    @GetMapping("/myChatrooms")
+    public ResponseEntity<List<Chatroom>> getMyUsersChatrooms(
+            @RequestParam(value = "id", required = true) int usersId) {
+        return ResponseEntity.ok(servicesRequest.getMyChatroomsFromUserId(usersId));
+    }
+
+    @GetMapping("/invitedChatrooms")
+    public ResponseEntity<List<Chatroom>> getinvitedUsersChatrooms(
+            @RequestParam(value = "id", required = true) int usersId) {
+        return ResponseEntity.ok(servicesRequest.getInvitedChatroomsFromUserId(usersId));
+    }
+
+    @PostMapping("/create")
     public ResponseEntity<Chatroom> createChatroom(@RequestBody ChatroomRequest request) {
         Chatroom chatroom = new Chatroom();
         chatroom.setChannel(request.getChannel());
@@ -53,15 +73,42 @@ public class ChatroomRestController {
 
         // Récupérer les utilisateurs sélectionnés
         List<Integer> usersIds = request.getUserIds();
+        int idInvit = request.getIdInvit();
+        System.out.println(idInvit);
+        Users userInvit = servicesRequest.getOneUser(idInvit);
 
         for (int userId : usersIds) {
             UserChat userChat = new UserChat();
             userChat.setUser(servicesRequest.getOneUser(userId));
             userChat.setChatroom(chatroom);
-            userChat.setIdinvit(servicesRequest.getOneUser(17));
+            userChat.setIdinvit(userInvit);
             servicesRequest.addUserChat(userChat);
         }
 
+        UserChat userChat = new UserChat();
+        userChat.setUser(userInvit);
+        userChat.setChatroom(chatroom);
+        userChat.setIdinvit(userInvit);
+        servicesRequest.addUserChat(userChat);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(chatroom);
     }
+
+    @GetMapping("/searchUsers")
+    public ResponseEntity<List<UsersDTO>> searchUsers
+            (@RequestParam(value = "search", required = true) String search) {
+        List<Users> res = servicesRequest.searchUsers(search);
+        List<UsersDTO> listUsersDTO = new ArrayList<>();
+
+        for (Users user : res) {
+            UsersDTO uDTO = new UsersDTO();
+            uDTO.setId(user.getId());
+            uDTO.setLastname(user.getLastname());
+            uDTO.setFirstname(user.getFirstname());
+            listUsersDTO.add(uDTO);
+        }
+        return ResponseEntity.ok(listUsersDTO);
+    }
+
 }
+

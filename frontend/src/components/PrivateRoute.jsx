@@ -2,9 +2,9 @@ import { Navigate } from 'react-router-dom';
 
 const PrivateRoute = ({ children, requireAdmin = false }) => {
     const userJson = localStorage.getItem('user');
-    const user = userJson ? JSON.parse(userJson) : null;
+    const user = userJson != null ? JSON.parse(userJson) : null;
 
-    if (!user) {
+    if (user == null) {
         return <Navigate to="/login" />;
     }
     if (requireAdmin && !user.isAdmin) {

@@ -10,6 +10,7 @@ public class ChatroomRequest {
     private LocalDateTime date;
     private int lifespan;
     private List<Integer> userIds;
+    private int idInvit;
 
     // Constructeurs
     public ChatroomRequest() {}
@@ -61,5 +62,13 @@ public class ChatroomRequest {
 
     public void setUserIds(List<Integer> userIds) {
         this.userIds = userIds;
+    }
+
+    public int getIdInvit() {
+        return idInvit;
+    }
+
+    public void setIdInvit(int idInvit) {
+        this.idInvit = idInvit;
     }
 }

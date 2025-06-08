@@ -25,7 +25,7 @@ const Login = () => {
             if (response.data.isAdmin) {
                 window.location.href = 'http://localhost:8080/admin';
             } else {
-                navigate('/chat');
+                navigate('/userMenu');
             }
         } catch (err) {
             console.error('Login error', err);
