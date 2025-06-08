@@ -56,7 +56,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String userName = "default";
 
         if (httpSession != null) {
-            Object userId = httpSession.getAttribute("userId");  // clé selon ton app
+            Object userId = httpSession.getAttribute("userId");
             if (userId != null) {
                 userName = userId.toString(); // ou autre donnée utilisateur
             }
