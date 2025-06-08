@@ -9,8 +9,9 @@ const Register = () => {
         firstname: '',
         lastname: '',
         email: '',
-        password: '',
+        password: ''
     });
+    const [avatar, setAvatar] = useState(null);
 
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -19,16 +20,29 @@ const Register = () => {
         setFormData({ ...formData, [e.target.id]: e.target.value });
     };
 
+    const handleImageChange = e => {
+        setAvatar(e.target.files[0]);
+    };
+
     const handleSubmit = async e => {
         e.preventDefault();
         setError('');
         setSuccess('');
         try {
-            const response = await axios.post(
-                'http://localhost:8080/api/user/register',
-                formData,
-                { headers: { 'Content-Type': 'application/json' } }
-            );
+            const form = new FormData();
+            form.append("firstname", formData.firstname);
+            form.append("lastname", formData.lastname);
+            form.append("email", formData.email);
+            form.append("password", formData.password);
+            if (avatar) {
+                form.append("avatar", avatar);
+            }
+
+            await axios.post("http://localhost:8080/api/user/register", form, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            });
             setSuccess('Account successfully registered!');
             setTimeout(() => {
                 navigate('/login');
@@ -72,7 +86,18 @@ const Register = () => {
                         />
                     </div>
                 ))}
-
+                    <div className="mb-6 flex flex-col">
+                        <label htmlFor="avatar" className="mb-2 font-semibold">
+                            Avatar (optional)
+                        </label>
+                        <input
+                            type="file"
+                            id="avatar"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="p-2 border border-gray-300 rounded"
+                        />
+                    </div>
                 <input
                     type="submit"
                     value="Register"
