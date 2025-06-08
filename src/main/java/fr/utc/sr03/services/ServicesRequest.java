@@ -67,11 +67,35 @@ public class ServicesRequest {
         em.persist(chatroom);
     }
 
-    public List<UserChat> getChatroomsFromUserId(int userId) {
-        return em.createQuery("SELECT uc FROM UserChat uc WHERE uc.user.id = :userId", UserChat.class)
+    public List<Chatroom> getChatroomsFromUserId(int userId) {
+        return em.createQuery(
+                        "SELECT uc.chatroom FROM UserChat uc WHERE uc.user.id = :userId",
+                        Chatroom.class)
                 .setParameter("userId", userId)
                 .getResultList();
     }
+
+    public List<Chatroom> getMyChatroomsFromUserId(int userId) {
+        return em.createQuery(
+                        "SELECT uc.chatroom FROM UserChat uc WHERE uc.idinvit.id = :userId",
+                        Chatroom.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
+
+    public List<Chatroom> getInvitedChatroomsFromUserId(int userId) {
+        return em.createQuery(
+                        "SELECT uc.chatroom FROM UserChat uc " +
+                                "WHERE uc.user.id = :userId AND uc.idinvit.id <> :userId",
+                        Chatroom.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
+
+    public void deleteChatroom(int chatroomId){
+        em.remove(em.find(Chatroom.class, chatroomId));
+    }
+
 
 
 

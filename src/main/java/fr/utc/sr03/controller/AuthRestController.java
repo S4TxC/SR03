@@ -28,6 +28,7 @@ public class AuthRestController {
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
         Users user = usersRepository.findByEmail(loginRequest.getEmail());
 
+
         if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             sessionService.createSession(session, user);
 
@@ -35,6 +36,8 @@ public class AuthRestController {
             response.put("message", "Login successful");
             response.put("email", user.getEmail());
             response.put("isAdmin", user.isAdmin());
+            response.put("name", user.getFirstname() + " " + user.getLastname());
+            response.put("id", user.getId());
 
             return ResponseEntity.ok(response);
         }

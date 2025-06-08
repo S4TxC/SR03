@@ -31,7 +31,15 @@ public class LoginRestController {
 
         if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             sessionService.createSession(session, user);
-            return ResponseEntity.ok().body("Successfully logged in");
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", user.getId());
+            response.put("firstname", user.getFirstname());
+            response.put("lastname", user.getLastname());
+            response.put("email", user.getEmail());
+            response.put("isAdmin", user.isAdmin());
+
+            return ResponseEntity.ok(response);
         }
 
         return ResponseEntity.status(401).body("Invalid credentials");
