@@ -38,6 +38,7 @@ public class LoginRestController {
             response.put("lastname", user.getLastname());
             response.put("email", user.getEmail());
             response.put("isAdmin", user.isAdmin());
+            response.put("avatarUrl", "/api/user/" + user.getId() + "/avatar");
 
             return ResponseEntity.ok(response);
         }
@@ -68,6 +69,7 @@ public class LoginRestController {
         safeUserData.put("lastname", user.getLastname());
         safeUserData.put("email", user.getEmail());
         safeUserData.put("isAdmin", user.isAdmin());
+        safeUserData.put("avatarUrl", "/api/user/" + user.getId() + "/avatar");
 
         return ResponseEntity.ok(safeUserData);
     }

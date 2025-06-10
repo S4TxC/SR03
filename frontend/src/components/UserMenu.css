@@ -46,3 +46,34 @@ body {
 .home-button:hover {
     background-color: #2563eb;
 }
+
+.user-info {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.user-details {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.logout-section {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.logout-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+    background-color: #c82333;
+}

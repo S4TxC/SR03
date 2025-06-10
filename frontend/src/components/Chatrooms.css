@@ -85,3 +85,27 @@ body {
     background-color: #ef4444;
     color: white;
 }
+
+.chat-meta {
+    margin-top: 0.5rem;
+}
+
+.bg-red-100 {
+    background-color: #fee2e2;
+}
+
+.border-red-400 {
+    border-color: #f87171;
+}
+
+.text-red-700 {
+    color: #b91c1c;
+}
+
+.text-gray-500 {
+    color: #6b7280;
+}
+
+.text-gray-600 {
+    color: #4b5563;
+}

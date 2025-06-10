@@ -1,5 +1,6 @@
 package fr.utc.sr03.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -26,6 +27,7 @@ public class Users {
     @Column(name="admin")
     private boolean admin;
 
+    @JsonIgnore
     @Column(name="avatar")
     private byte[] avatar;
 

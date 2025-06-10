@@ -1,35 +1,37 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useAuth } from './Authentication';
 
 const Login = () => {
+    const { login } = useAuth();
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        setIsLoading(true);
+
         try {
-            const response = await axios.post(
-                'http://localhost:8080/api/auth/login',
-                { email, password },
-                {
-                    withCredentials: true,
-                    headers: { 'Content-Type': 'application/json' },
+            const result = await login(email, password);
+
+            if (result.success) {
+                if (result.data.isAdmin) {
+                    navigate('/admin');
+                } else {
+                    navigate('/userMenu');
                 }
-            );
-
-            localStorage.setItem('user', JSON.stringify(response.data));
-
-            if (response.data.isAdmin) {
-                window.location.href = 'http://localhost:8080/admin';
             } else {
-                navigate('/userMenu');
+                setError(result.error);
             }
         } catch (err) {
-            console.error('Login error', err);
-            setError('Invalid credentials. Please try again later');
+            console.error('Erreur login:', err);
+            setError('Erreur de connexion. Veuillez réessayer.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -54,7 +56,8 @@ const Login = () => {
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                         required
-                        className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                        disabled={isLoading}
+                        className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
                     />
                 </div>
 
@@ -69,14 +72,16 @@ const Login = () => {
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         required
-                        className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                        disabled={isLoading}
+                        className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
                     />
                 </div>
 
                 <input
                     type="submit"
-                    value="Login"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl cursor-pointer transition-colors duration-300"
+                    value={isLoading ? "Connexion..." : "Login"}
+                    disabled={isLoading}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl cursor-pointer transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 />
 
                 {error && (

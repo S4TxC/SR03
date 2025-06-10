@@ -6,6 +6,7 @@ import fr.utc.sr03.model.Chatroom;
 import fr.utc.sr03.model.UserChat;
 import fr.utc.sr03.model.Users;
 import fr.utc.sr03.services.ServicesRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +46,14 @@ public class ChatroomRestController {
 
     @GetMapping("/allChatrooms")
     public ResponseEntity<List<Chatroom>> getAllUsersChatrooms(
-            @RequestParam(value = "id", required = true) int usersId) {
+            @RequestParam(value = "id", required = true) int usersId,
+            HttpSession session) {
+
+        Long sessionUserId = (Long) session.getAttribute("userId");
+        if (sessionUserId == null) {
+            return ResponseEntity.status(401).build();
+        }
+
         return ResponseEntity.ok(servicesRequest.getChatroomsFromUserId(usersId));
     }
 

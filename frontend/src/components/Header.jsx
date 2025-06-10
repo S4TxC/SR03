@@ -1,22 +1,17 @@
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useAuth } from './Authentication';
 
 const Header = () => {
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
-
-    useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-    }, []);
+    const { user, logout } = useAuth();
 
     const handleLogout = async () => {
         try {
-            await axios.post('http://localhost:8080/api/auth/logout', {}, { withCredentials: true });
-            localStorage.removeItem('user');
+            await fetch('http://localhost:8080/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include',
+            });
+            logout();
             navigate('/login');
         } catch (err) {
             console.error('Erreur lors de la déconnexion', err);
@@ -29,7 +24,7 @@ const Header = () => {
             <div className="flex items-center gap-3">
                 {user && user.avatarUrl ? (
                     <img
-                        src={`http://localhost:8080${user.avatarUrl}`}
+                        src={`http://localhost:8080/api/user/${user.id}/avatar`}
                         alt={`${user.firstname}'s profile`}
                         className="w-10 h-10 rounded-full object-cover border-2 border-white"
                     />

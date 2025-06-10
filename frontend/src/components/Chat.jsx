@@ -1,35 +1,68 @@
 import { useEffect, useState } from 'react';
 import Header from './Header';
-import {useParams} from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useAuth } from "./Authentication";
 
 const Chat = () => {
     const { id } = useParams();
-
+    const { user } = useAuth(); // Utilisation du hook d'authentification
     const [messages, setMessages] = useState([]);
     const [ws, setWs] = useState(null);
     const [message, setMessage] = useState('');
-    const [user, setUser] = useState(null);
     const [isTyping, setIsTyping] = useState(false);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+        // Vérifier si l'utilisateur est connecté
+        if (!user?.id) {
+            console.log('❌ Pas d\'utilisateur connecté pour le chat');
+            return;
         }
 
-        const username = storedUser != null ? JSON.parse(storedUser).firstname : 'Guest';
+        const username = user.firstname || 'Guest';
+        const token = user.token || ''; // Récupérer le token depuis l'utilisateur authentifié
 
-        const websocket = new WebSocket(`ws://localhost:8080/ws/chat?room=${id}&user=${username}`);
-        websocket.onopen = () => console.log('WebSocket is connected');
-        websocket.onmessage = (evt) => setMessages(prev => [...prev, evt.data]);
-        websocket.onclose = () => console.log('WebSocket is closed');
+        console.log('🔄 Connexion WebSocket pour:', username);
+
+        const websocket = new WebSocket(`ws://localhost:8080/ws/chat?room=${id}&user=${username}&token=${token}`);
+
+        websocket.onopen = () => {
+            console.log('✅ WebSocket connecté');
+        };
+
+        websocket.onmessage = (evt) => {
+            setMessages(prev => [...prev, evt.data]);
+        };
+
+        websocket.onclose = () => {
+            console.log('❌ WebSocket fermé');
+        };
+
+        websocket.onerror = (error) => {
+            console.error('❌ Erreur WebSocket:', error);
+        };
+
         setWs(websocket);
-        return () => websocket.close();
-    }, []);
+
+        return () => {
+            console.log('🔄 Fermeture WebSocket');
+            websocket.close();
+        };
+    }, [id, user]); // Ajouter user comme dépendance
 
     const sendMessage = () => {
+        if (!user?.id) {
+            console.log('❌ Utilisateur non connecté, impossible d\'envoyer le message');
+            return;
+        }
+
         if (ws && message.trim() !== '') {
-            ws.send(JSON.stringify({ user: user ? user.firstname : 'Guest', message }));
+            const messageData = {
+                user: user.firstname || 'Guest',
+                message: message.trim()
+            };
+
+            console.log('🔄 Envoi du message:', messageData);
+            ws.send(JSON.stringify(messageData));
             setMessage('');
             setIsTyping(false);
         }
@@ -44,6 +77,28 @@ const Chat = () => {
         }
     };
 
+    // Vérification de la connexion utilisateur
+    if (!user) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+                <Header />
+                <div className="flex justify-center items-center h-96">
+                    <div className="bg-white/80 backdrop-blur-lg shadow-2xl rounded-2xl border border-white/20 p-8">
+                        <div className="text-center">
+                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+                                <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                            </div>
+                            <p className="text-lg font-medium text-gray-800 mb-2">Session expirée</p>
+                            <p className="text-gray-600">Veuillez vous reconnecter pour accéder au chat.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
             <Header />
@@ -56,7 +111,7 @@ const Chat = () => {
                         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
-                                    <div className="w-3 h-3 bg-green-400 rounded-full shadow-lg"></div>
+                                    <div className={`w-3 h-3 rounded-full shadow-lg ${ws ? 'bg-green-400' : 'bg-red-400'}`}></div>
                                     <h2 className="text-xl font-semibold text-white">
                                         Chat
                                     </h2>
@@ -65,8 +120,12 @@ const Chat = () => {
                                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
                                     </svg>
-                                    <span className="text-sm">Online</span>
+                                    <span className="text-sm">{ws ? 'Online' : 'Offline'}</span>
                                 </div>
+                            </div>
+                            {/* Affichage de l'utilisateur connecté */}
+                            <div className="mt-2 text-sm text-blue-100">
+                                Connecté en tant que: <strong>{user.firstname} {user.lastname}</strong>
                             </div>
                         </div>
 
@@ -84,7 +143,7 @@ const Chat = () => {
                                 </div>
                             ) : (
                                 messages.map((msg, idx) => {
-                                    const currentUserName = user ? user.firstname : 'Guest';
+                                    const currentUserName = user.firstname || 'Guest';
 
                                     // Extraire le nom d'utilisateur et le message
                                     const colonIndex = msg.indexOf(' : ');
@@ -188,8 +247,9 @@ const Chat = () => {
                                         value={message}
                                         onChange={(e) => setMessage(e.target.value)}
                                         onKeyPress={handleKeyPress}
-                                        className="w-full px-4 py-3 bg-white border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 placeholder-gray-400"
-                                        placeholder="Enter your message..."
+                                        disabled={!ws || !user}
+                                        className="w-full px-4 py-3 bg-white border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 placeholder-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                        placeholder={ws && user ? "Enter your message..." : "Connexion en cours..."}
                                     />
                                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,7 +260,7 @@ const Chat = () => {
 
                                 <button
                                     onClick={sendMessage}
-                                    disabled={!message.trim()}
+                                    disabled={!message.trim() || !ws || !user}
                                     className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-semibold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 disabled:transform-none disabled:cursor-not-allowed"
                                 >
                                     <span className="flex items-center gap-2">

@@ -98,11 +98,11 @@ const Register = () => {
                             className="p-2 border border-gray-300 rounded"
                         />
                     </div>
-                <input
-                    type="submit"
-                    value="Register"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl cursor-pointer transition-colors duration-300"
-                />
+                    <input
+                        type="submit"
+                        value="Register"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl cursor-pointer transition-colors duration-300"
+                    />
 
                 {error && <p className="text-red-600 text-center mt-4 font-bold">{error}</p>}
                 {success && <p className="text-green-600 text-center mt-4 font-bold">{success}</p>}
