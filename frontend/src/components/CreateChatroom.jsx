@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "./Authentication";
-import "./CreateChatroom.css";
 
 function CreateChatroom() {
     const { user } = useAuth();
@@ -19,60 +18,45 @@ function CreateChatroom() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const searchUsers = async () => {
-            if (!user?.id) {
-                console.log('❌ Pas d\'utilisateur pour la recherche');
-                return;
-            }
-
-            if (search.trim() === "") {
+        const timeoutId = setTimeout(() => {
+            if (!user?.id || search.trim() === "") {
                 setUsers([]);
                 return;
             }
 
-            try {
-                console.log('🔍 Recherche d\'utilisateurs:', search);
-                setSearchLoading(true);
-                setError(null);
-
-                const response = await axios.get(
-                    `http://localhost:8080/api/chatroom/searchUsers?search=${encodeURIComponent(search)}`
-                );
-
-                // Exclure l'utilisateur courant
-                const filteredUsers = response.data.filter((u) => u.id !== user.id);
-                console.log('✅ Utilisateurs trouvés:', filteredUsers.length);
-                setUsers(filteredUsers);
-            } catch (err) {
-                console.error('❌ Erreur recherche utilisateurs:', err);
-
-                if (err.response?.status === 401) {
-                    setError("Session expirée. Veuillez vous reconnecter.");
-                } else {
-                    setError("Erreur lors de la recherche d'utilisateurs.");
+            const fetchUsers = async () => {
+                try {
+                    setSearchLoading(true);
+                    const response = await axios.get(
+                        `http://localhost:8080/api/chatroom/searchUsers?search=${encodeURIComponent(search)}`
+                    );
+                    setUsers(response.data.filter((u) => u.id !== user.id));
+                } catch (err) {
+                    setUsers([]);
+                    if (err.response?.status === 401) {
+                        setError("Session expired. Please try again later.");
+                    } else {
+                        setError("Error occurred while searching for users.");
+                    }
+                } finally {
+                    setSearchLoading(false);
                 }
-                setUsers([]);
-            } finally {
-                setSearchLoading(false);
-            }
-        };
+            };
 
-        // Debounce la recherche pour éviter trop de requêtes
-        const timeoutId = setTimeout(searchUsers, 300);
+            fetchUsers();
+        }, 300);
+
         return () => clearTimeout(timeoutId);
     }, [search, user]);
 
-    const handleSelectUser = (userToAdd) => {
-        if (!selectedUsers.some((u) => u.id === userToAdd.id)) {
-            setSelectedUsers([...selectedUsers, userToAdd]);
-            console.log('👤 Utilisateur ajouté:', userToAdd.firstname, userToAdd.lastname);
+    const handleSelectUser = (u) => {
+        if (!selectedUsers.find((x) => x.id === u.id)) {
+            setSelectedUsers([...selectedUsers, u]);
         }
     };
 
-    const handleRemoveUser = (idToRemove) => {
-        const removedUser = selectedUsers.find(u => u.id === idToRemove);
-        setSelectedUsers(selectedUsers.filter((u) => u.id !== idToRemove));
-        console.log('❌ Utilisateur retiré:', removedUser?.firstname, removedUser?.lastname);
+    const handleRemoveUser = (id) => {
+        setSelectedUsers(selectedUsers.filter((u) => u.id !== id));
     };
 
     const resetForm = () => {
@@ -85,39 +69,18 @@ function CreateChatroom() {
         setSelectedUsers([]);
         setError(null);
         setSuccess(false);
-        console.log('🔄 Formulaire réinitialisé');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!user?.id) {
-            setError("Session expirée. Veuillez vous reconnecter.");
-            return;
-        }
+        if (!user?.id) return setError("Session expired. Please try again later.");
+        if (!channel.trim()) return setError("The title is mandatory.");
+        if (!date) return setError("Date and time are mandatory.");
+        if (!lifespan || parseInt(lifespan) < 1) return setError("Invalid duration");
+        if (selectedUsers.length === 0) return setError("Please add at least one user.");
 
-        if (selectedUsers.length === 0) {
-            setError("Veuillez ajouter au moins un utilisateur au chatroom.");
-            return;
-        }
-
-        // Validation des données
-        if (!channel.trim()) {
-            setError("Le titre est obligatoire.");
-            return;
-        }
-
-        if (!date) {
-            setError("La date et l'heure sont obligatoires.");
-            return;
-        }
-
-        if (!lifespan || lifespan < 1) {
-            setError("La durée de validité doit être d'au moins 1 jour.");
-            return;
-        }
-
-        const requete = {
+        const payload = {
             idInvit: user.id,
             channel: channel.trim(),
             description: description.trim(),
@@ -127,170 +90,169 @@ function CreateChatroom() {
         };
 
         try {
-            console.log('📤 Création de la chatroom:', requete);
             setLoading(true);
-            setError(null);
-            setSuccess(false);
-
-            await axios.post("http://localhost:8080/api/chatroom/create", requete);
-
-            console.log('✅ Chatroom créée avec succès');
+            await axios.post("http://localhost:8080/api/chatroom/create", payload);
             setSuccess(true);
             resetForm();
         } catch (err) {
-            console.error('❌ Erreur création chatroom:', err);
-
             if (err.response?.status === 401) {
-                setError("Session expirée. Veuillez vous reconnecter.");
+                setError("Session expired. Please try again later.");
             } else if (err.response?.status === 400) {
-                setError("Données invalides. Vérifiez vos informations.");
+                setError("Invalid data.");
             } else {
-                setError("Erreur lors de la création de la chatroom.");
+                setError("Error while creating.");
             }
-            setSuccess(false);
         } finally {
             setLoading(false);
         }
     };
 
-    // Vérification de l'utilisateur connecté
     if (!user) {
         return (
-            <div className="flex justify-center items-center h-screen">
-                <p className="text-lg">Veuillez vous connecter pour créer une chatroom.</p>
+            <div className="flex items-center justify-center h-screen text-xl text-gray-700">
+                Please login to create a Chatroom.
             </div>
         );
     }
 
     return (
-        <div className="chatroom-container">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Créer une Chatroom</h2>
-                <div className="text-sm text-gray-600">
-                    Créée par: <strong>{user.firstname} {user.lastname}</strong>
-                </div>
+        <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">Create a Chatroom</h2>
+                <p className="text-sm text-gray-500">
+                    Created by: <strong>{user.firstname} {user.lastname}</strong>
+                </p>
             </div>
 
             {success && (
-                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                    ✅ Chatroom créée avec succès !
+                <div className="bg-green-100 border border-green-400 text-green-700 p-3 rounded mb-4">
+                    Chatroom created successfully.
                 </div>
             )}
 
             {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    ❌ {error}
+                <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded mb-4">
+                    {error}
                 </div>
             )}
 
-            <form onSubmit={handleSubmit}>
-                <label>Titre *</label>
-                <input
-                    value={channel}
-                    onChange={(e) => setChannel(e.target.value)}
-                    required
-                    placeholder="Titre de la chatroom"
-                    maxLength="100"
-                />
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium">Chatroom Name*</label>
+                    <input
+                        className="w-full border rounded px-3 py-2 mt-1"
+                        value={channel}
+                        onChange={(e) => setChannel(e.target.value)}
+                        placeholder="Chatroom Name"
+                        maxLength="100"
+                    />
+                </div>
 
-                <label>Description</label>
-                <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Description (optionnelle)"
-                    maxLength="500"
-                />
+                <div>
+                    <label className="block text-sm font-medium">Description</label>
+                    <textarea
+                        className="w-full border rounded px-3 py-2 mt-1"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Description (optional)"
+                        maxLength="500"
+                    />
+                </div>
 
-                <label>Date et heure *</label>
-                <input
-                    type="datetime-local"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    required
-                    min={new Date().toISOString().slice(0, 16)}
-                />
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium">Date & time *</label>
+                        <input
+                            type="datetime-local"
+                            className="w-full border rounded px-3 py-2 mt-1"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                            min={new Date().toISOString().slice(0, 16)}
+                        />
+                    </div>
 
-                <label>Durée de validité (jours) *</label>
-                <input
-                    type="number"
-                    min="1"
-                    max="365"
-                    value={lifespan}
-                    onChange={(e) => setLifespan(e.target.value)}
-                    required
-                    placeholder="Ex: 7"
-                />
+                    <div>
+                        <label className="block text-sm font-medium">Life span (days) *</label>
+                        <input
+                            type="number"
+                            className="w-full border rounded px-3 py-2 mt-1"
+                            min="1"
+                            max="365"
+                            value={lifespan}
+                            onChange={(e) => setLifespan(e.target.value)}
+                            placeholder="Ex: 7"
+                        />
+                    </div>
+                </div>
 
-                <label>Rechercher un utilisateur</label>
-                <div className="relative">
+                <div>
+                    <label className="block text-sm font-medium">Search for a user</label>
                     <input
                         type="text"
+                        className="w-full border rounded px-3 py-2 mt-1"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Nom d'utilisateur"
+                        placeholder="Username"
                     />
-                    {searchLoading && (
-                        <div className="absolute right-2 top-2">
-                            <span className="text-sm text-gray-500">🔍</span>
-                        </div>
-                    )}
+                    {searchLoading && <p className="text-sm text-gray-400 mt-1">Searching...</p>}
                 </div>
 
-                <div className="user-list">
-                    {users.length > 0 && (
-                        <div className="text-sm text-gray-600 mb-2">
-                            {users.length} utilisateur(s) trouvé(s) - Cliquez pour ajouter
+                {users.length > 0 && (
+                    <div className="mt-2">
+                        <p className="text-sm text-gray-600 mb-1">Click to add:</p>
+                        <div className="grid gap-2">
+                            {users.map((u) => (
+                                <div
+                                    key={u.id}
+                                    className={`p-2 border rounded cursor-pointer hover:bg-gray-100 flex justify-between items-center ${
+                                        selectedUsers.some((s) => s.id === u.id) ? "bg-green-50" : ""
+                                    }`}
+                                    onClick={() => handleSelectUser(u)}
+                                >
+                                    {u.firstname} {u.lastname}
+                                    {selectedUsers.some((s) => s.id === u.id) && <span className="text-green-600">✓</span>}
+                                </div>
+                            ))}
                         </div>
-                    )}
-                    {users.map((searchUser) => (
-                        <div
-                            key={searchUser.id}
-                            className={`user-item ${
-                                selectedUsers.some(u => u.id === searchUser.id) ? 'already-selected' : ''
-                            }`}
-                            onClick={() => handleSelectUser(searchUser)}
-                        >
-                            {searchUser.firstname} {searchUser.lastname}
-                            {selectedUsers.some(u => u.id === searchUser.id) && (
-                                <span className="text-green-600 ml-2">✓</span>
-                            )}
-                        </div>
-                    ))}
-                </div>
-
-                {selectedUsers.length > 0 && (
-                    <div className="selected-users">
-                        <div className="text-sm text-gray-600 mb-2">
-                            Utilisateurs sélectionnés ({selectedUsers.length}) - Cliquez pour retirer
-                        </div>
-                        {selectedUsers.map((u) => (
-                            <span
-                                key={u.id}
-                                className="selected-user"
-                                onClick={() => handleRemoveUser(u.id)}
-                                title="Cliquer pour retirer"
-                            >
-                                {u.firstname} {u.lastname} ✖
-                            </span>
-                        ))}
                     </div>
                 )}
 
-                <button
-                    type="submit"
-                    disabled={loading || selectedUsers.length === 0}
-                    className={loading ? 'loading' : ''}
-                >
-                    {loading ? '⏳ Création en cours...' : 'Créer la Chatroom'}
-                </button>
+                {selectedUsers.length > 0 && (
+                    <div className="mt-4">
+                        <p className="text-sm text-gray-600 mb-1">User selected:</p>
+                        <div className="flex flex-wrap gap-2">
+                            {selectedUsers.map((u) => (
+                                <span
+                                    key={u.id}
+                                    onClick={() => handleRemoveUser(u.id)}
+                                    className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-200"
+                                >
+                                    {u.firstname} {u.lastname}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
-                <button
-                    type="button"
-                    onClick={resetForm}
-                    className="secondary-button ml-2"
-                >
-                    Réinitialiser
-                </button>
+                <div className="mt-6 flex gap-4">
+                    <button
+                        type="submit"
+                        disabled={loading || selectedUsers.length === 0}
+                        className={`px-4 py-2 rounded text-white font-semibold ${
+                            loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+                        }`}
+                    >
+                        {loading ? "Creation..." : "Create Chatroom"}
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={resetForm}
+                        className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
+                    >
+                        Reset
+                    </button>
+                </div>
             </form>
         </div>
     );

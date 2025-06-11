@@ -5,55 +5,33 @@ import { useAuth } from "./Authentication";
 
 const Chat = () => {
     const { id } = useParams();
-    const { user } = useAuth(); // Utilisation du hook d'authentification
+    const { user } = useAuth();
     const [messages, setMessages] = useState([]);
     const [ws, setWs] = useState(null);
     const [message, setMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
 
     useEffect(() => {
-        // Vérifier si l'utilisateur est connecté
-        if (!user?.id) {
-            console.log('❌ Pas d\'utilisateur connecté pour le chat');
-            return;
-        }
+        if (!user?.id) return;
 
         const username = user.firstname || 'Guest';
-        const token = user.token || ''; // Récupérer le token depuis l'utilisateur authentifié
-
-        console.log('🔄 Connexion WebSocket pour:', username);
+        const token = user.token || '';
 
         const websocket = new WebSocket(`ws://localhost:8080/ws/chat?room=${id}&user=${username}&token=${token}`);
-
-        websocket.onopen = () => {
-            console.log('✅ WebSocket connecté');
-        };
 
         websocket.onmessage = (evt) => {
             setMessages(prev => [...prev, evt.data]);
         };
 
-        websocket.onclose = () => {
-            console.log('❌ WebSocket fermé');
-        };
-
-        websocket.onerror = (error) => {
-            console.error('❌ Erreur WebSocket:', error);
-        };
-
         setWs(websocket);
 
         return () => {
-            console.log('🔄 Fermeture WebSocket');
             websocket.close();
         };
-    }, [id, user]); // Ajouter user comme dépendance
+    }, [id, user]);
 
     const sendMessage = () => {
-        if (!user?.id) {
-            console.log('❌ Utilisateur non connecté, impossible d\'envoyer le message');
-            return;
-        }
+        if (!user?.id) return;
 
         if (ws && message.trim() !== '') {
             const messageData = {
@@ -61,7 +39,6 @@ const Chat = () => {
                 message: message.trim()
             };
 
-            console.log('🔄 Envoi du message:', messageData);
             ws.send(JSON.stringify(messageData));
             setMessage('');
             setIsTyping(false);
@@ -77,7 +54,6 @@ const Chat = () => {
         }
     };
 
-    // Vérification de la connexion utilisateur
     if (!user) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -90,8 +66,8 @@ const Chat = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                                 </svg>
                             </div>
-                            <p className="text-lg font-medium text-gray-800 mb-2">Session expirée</p>
-                            <p className="text-gray-600">Veuillez vous reconnecter pour accéder au chat.</p>
+                            <p className="text-lg font-medium text-gray-800 mb-2">Session expired</p>
+                            <p className="text-gray-600">Please sign in again to access chat.</p>
                         </div>
                     </div>
                 </div>
@@ -102,19 +78,14 @@ const Chat = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
             <Header />
-
             <div className="flex justify-center px-4 py-8">
                 <div className="w-full max-w-4xl">
-                    {/* Chat Container */}
                     <div className="bg-white/80 backdrop-blur-lg shadow-2xl rounded-2xl border border-white/20 overflow-hidden">
-                        {/* Chat Header */}
                         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
                                     <div className={`w-3 h-3 rounded-full shadow-lg ${ws ? 'bg-green-400' : 'bg-red-400'}`}></div>
-                                    <h2 className="text-xl font-semibold text-white">
-                                        Chat
-                                    </h2>
+                                    <h2 className="text-xl font-semibold text-white">Chat</h2>
                                 </div>
                                 <div className="flex items-center space-x-2 text-blue-100">
                                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -123,13 +94,11 @@ const Chat = () => {
                                     <span className="text-sm">{ws ? 'Online' : 'Offline'}</span>
                                 </div>
                             </div>
-                            {/* Affichage de l'utilisateur connecté */}
                             <div className="mt-2 text-sm text-blue-100">
-                                Connecté en tant que: <strong>{user.firstname} {user.lastname}</strong>
+                                Logged as: <strong>{user.firstname} {user.lastname}</strong>
                             </div>
                         </div>
 
-                        {/* Messages Area */}
                         <div className="h-96 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50/50 to-white/50">
                             {messages.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-full text-gray-500">
@@ -139,13 +108,11 @@ const Chat = () => {
                                         </svg>
                                     </div>
                                     <p className="text-lg font-medium">No message</p>
-                                    <p className="text-sm">Start discussing !</p>
+                                    <p className="text-sm">Start discussing!</p>
                                 </div>
                             ) : (
                                 messages.map((msg, idx) => {
                                     const currentUserName = user.firstname || 'Guest';
-
-                                    // Extraire le nom d'utilisateur et le message
                                     const colonIndex = msg.indexOf(' : ');
                                     let messageUser = 'Unknown';
                                     let messageContent = msg;
@@ -157,9 +124,8 @@ const Chat = () => {
 
                                     const isCurrentUser = messageUser === currentUserName;
 
-                                    // Ignorer les messages de connexion/déconnexion
-                                    if (messageContent.includes('vient de se connecter') ||
-                                        messageContent.includes('vient de se déconnecter')) {
+                                    if (messageContent.includes('has just connected!') ||
+                                        messageContent.includes('disconnected')) {
                                         return (
                                             <div key={idx} className="flex justify-center mb-2">
                                                 <div className="bg-gray-100 px-3 py-1 rounded-full">
@@ -171,7 +137,6 @@ const Chat = () => {
 
                                     return (
                                         <div key={idx} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
-                                            {/* Messages des autres utilisateurs - À gauche */}
                                             {!isCurrentUser && (
                                                 <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
                                                     <div className="flex-shrink-0">
@@ -192,7 +157,6 @@ const Chat = () => {
                                                 </div>
                                             )}
 
-                                            {/* Messages de l'utilisateur actuel - À droite */}
                                             {isCurrentUser && (
                                                 <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
                                                     <div className="flex flex-col">
@@ -206,7 +170,7 @@ const Chat = () => {
                                                         </div>
                                                     </div>
                                                     <div className="flex-shrink-0">
-                                                        {user && user.avatarUrl ? (
+                                                        {user.avatarUrl ? (
                                                             <img
                                                                 src={`http://localhost:8080${user.avatarUrl}`}
                                                                 alt="Votre avatar"
@@ -230,15 +194,14 @@ const Chat = () => {
                                     <div className="bg-gray-100 px-4 py-3 rounded-2xl border border-gray-200">
                                         <div className="flex space-x-1">
                                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                                         </div>
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        {/* Input Area */}
                         <div className="p-4 bg-white/70 backdrop-blur-sm border-t border-gray-200/50">
                             <div className="flex items-center space-x-3">
                                 <div className="flex-1 relative">
@@ -249,7 +212,7 @@ const Chat = () => {
                                         onKeyPress={handleKeyPress}
                                         disabled={!ws || !user}
                                         className="w-full px-4 py-3 bg-white border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 placeholder-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                                        placeholder={ws && user ? "Enter your message..." : "Connexion en cours..."}
+                                        placeholder={ws && user ? "Enter your message..." : "Login..."}
                                     />
                                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

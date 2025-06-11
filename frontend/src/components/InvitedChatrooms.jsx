@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useAuth } from "./Authentication";
-import "./Chatrooms.css";
 
 const InvitedChatrooms = () => {
     const { user } = useAuth();
@@ -13,30 +12,22 @@ const InvitedChatrooms = () => {
     useEffect(() => {
         const loadInvitations = async () => {
             if (!user?.id) {
-                console.log('❌ Pas d\'utilisateur pour charger les invitations');
                 setLoading(false);
                 return;
             }
 
             try {
-                console.log('🔄 Chargement des invitations pour:', user.email);
-                setLoading(true);
                 setError(null);
-
-                // Utiliser l'ID de l'utilisateur depuis la session
+                setLoading(true);
                 const response = await axios.get(
                     `http://localhost:8080/api/chatroom/invitedChatrooms?id=${user.id}`
                 );
-
-                console.log('✅ Invitations chargées:', response.data);
                 setInvitations(response.data);
             } catch (err) {
-                console.error('❌ Erreur chargement invitations:', err);
-
                 if (err.response?.status === 401) {
-                    setError("Session expirée. Veuillez vous reconnecter.");
+                    setError("Session expired");
                 } else {
-                    setError("Erreur lors du chargement des invitations.");
+                    setError("Error while logging in.");
                 }
             } finally {
                 setLoading(false);
@@ -48,56 +39,61 @@ const InvitedChatrooms = () => {
 
     if (!user) {
         return (
-            <div className="flex justify-center items-center h-screen">
-                <p className="text-lg">Veuillez vous connecter pour voir vos invitations.</p>
+            <div className="flex justify-center items-center min-h-screen bg-gray-100">
+                <p className="text-lg text-gray-700">
+                    Please log in to see your invitations.
+                </p>
             </div>
         );
     }
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-screen">
-                <p className="text-lg">Chargement des invitations...</p>
+            <div className="flex justify-center items-center min-h-screen bg-gray-100">
+                <p className="text-lg text-gray-500">Loading invitations...</p>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="flex justify-center items-center h-screen">
+            <div className="flex justify-center items-center min-h-screen bg-gray-100">
                 <p className="text-red-600 text-lg">{error}</p>
             </div>
         );
     }
 
     return (
-        <div className="page-container">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Mes Invitations</h2>
-                <div className="text-sm text-gray-600">
-                    Connecté en tant que: <strong>{user.firstname} {user.lastname}</strong>
+        <div className="min-h-screen bg-gray-50 py-10 px-4">
+            <div className="max-w-4xl mx-auto">
+                <div className="flex justify-between items-center mb-8">
+                    <h2 className="text-3xl font-semibold text-gray-800">My invitations</h2>
+                    <div className="text-sm text-gray-500">
+                        Logged as: <strong>{user.firstname} {user.lastname}</strong>
+                    </div>
                 </div>
-            </div>
 
-            <div className="chat-list">
                 {invitations.length === 0 ? (
-                    <div className="text-center py-8">
-                        <p className="text-gray-500">Aucune invitation pour le moment.</p>
+                    <div className="text-center text-gray-500 mt-10">
+                        <p>No invitations.</p>
                     </div>
                 ) : (
-                    invitations.map((chat) => (
-                        <div key={chat.id} className="chat-card">
-                            <div className="chat-info">
-                                <h3>{chat.channel}</h3>
-                                <p>{chat.description}</p>
-                            </div>
-                            <div className="chat-actions">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {invitations.map((chat) => (
+                            <div
+                                key={chat.id}
+                                className="bg-white rounded-xl shadow p-6 hover:shadow-lg transition duration-200"
+                            >
+                                <h3 className="text-xl font-bold text-blue-700">{chat.channel}</h3>
+                                <p className="text-gray-600 mt-2 mb-4">{chat.description}</p>
                                 <Link to={`/chat/${chat.id}`}>
-                                    <button className="view">Voir</button>
+                                    <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                                        View the Chatroom
+                                    </button>
                                 </Link>
                             </div>
-                        </div>
-                    ))
+                        ))}
+                    </div>
                 )}
             </div>
         </div>

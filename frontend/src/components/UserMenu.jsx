@@ -1,41 +1,49 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "./Authentication";
-import "./UserMenu.css";
 
 const UserMenu = () => {
     const { user, logout } = useAuth();
 
     const handleLogout = async () => {
         await logout();
-        // La redirection sera gérée automatiquement par le contexte d'authentification
     };
 
     return (
-        <div className="home-wrapper">
-            <div className="home-container">
-                <div className="user-info">
-                    <h1>Bienvenue {user ? user.firstname : "sur ChatRoom"}</h1>
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+            <div className="bg-white rounded-xl shadow-md p-8 max-w-md w-full text-center space-y-6">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-800">
+                        {user ? `Welcome back ${user.firstname}!` : "Welcome in Chatroom"}
+                    </h1>
                     {user && (
-                        <p className="user-details">
-                            {user.firstname} {user.lastname} ({user.email})
+                        <p className="text-gray-600 mt-2">
+                            {user.firstname} {user.lastname} — <span className="text-sm">{user.email}</span>
                         </p>
                     )}
                 </div>
 
-                <div className="home-buttons">
-                    <Link to="/accueil" className="home-button">Accueil</Link>
-                    <Link to="/myChatrooms" className="home-button">Mes Chats</Link>
-                    <Link to="/invitedChatrooms" className="home-button">Mes Invitations</Link>
-                    <Link to="/createChatroom" className="home-button">Créer une Chatroom</Link>
+                <div className="grid gap-3">
+                    <Link to="/accueil" className="w-full block bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
+                        Homepage
+                    </Link>
+                    <Link to="/myChatrooms" className="w-full block bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition">
+                        My Chatrooms
+                    </Link>
+                    <Link to="/invitedChatrooms" className="w-full block bg-teal-600 text-white py-2 rounded hover:bg-teal-700 transition">
+                        My Invitations
+                    </Link>
+                    <Link to="/createChatroom" className="w-full block bg-green-600 text-white py-2 rounded hover:bg-green-700 transition">
+                        Create a Chatroom
+                    </Link>
                 </div>
 
-                <div className="logout-section">
+                <div className="pt-4 border-t">
                     <button
                         onClick={handleLogout}
-                        className="logout-button"
+                        className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition"
                     >
-                        Se déconnecter
+                        Logout
                     </button>
                 </div>
             </div>

@@ -12,12 +12,9 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkSession = async () => {
             try {
-                console.log('Vérification de la session...');
                 const response = await axios.get('http://localhost:8080/api/auth/me');
-                console.log('Session valide:', response.data);
                 setUser(response.data);
-            } catch (error) {
-                console.log('Pas de session active:', error.response?.status);
+            } catch {
                 setUser(null);
             } finally {
                 setIsLoading(false);
@@ -33,25 +30,18 @@ export const AuthProvider = ({ children }) => {
                 'http://localhost:8080/api/auth/login',
                 { email, password }
             );
-
-            console.log('Login réussi:', response.data);
             setUser(response.data);
             return { success: true, data: response.data };
         } catch (error) {
-            console.log('Erreur login:', error.response?.data);
-            return { success: false, error: error.response?.data || 'Erreur de connexion' };
+            return { success: false, error: error.response?.data || 'Login failed' };
         }
     };
 
     const logout = async () => {
         try {
             await axios.post('http://localhost:8080/api/auth/logout');
-            console.log('Logout réussi');
-        } catch (error) {
-            console.log('Erreur logout:', error);
-        } finally {
-            setUser(null);
-        }
+        } catch {}
+        setUser(null);
     };
 
     return (

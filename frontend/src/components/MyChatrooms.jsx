@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./Authentication";
-import "./Chatrooms.css";
 
 const MyChatrooms = () => {
     const { user } = useAuth();
@@ -14,13 +13,11 @@ const MyChatrooms = () => {
     useEffect(() => {
         const loadMyChats = async () => {
             if (!user?.id) {
-                console.log('❌ Pas d\'utilisateur pour charger les chats');
                 setLoading(false);
                 return;
             }
 
             try {
-                console.log('🔄 Chargement de mes chats pour:', user.email);
                 setLoading(true);
                 setError('');
 
@@ -28,17 +25,14 @@ const MyChatrooms = () => {
                     `http://localhost:8080/api/chatroom/myChatrooms?id=${user.id}`
                 );
 
-                console.log('✅ Mes chats chargés:', response.data);
                 setChats(response.data);
             } catch (err) {
-                console.error('❌ Erreur chargement mes chats:', err);
-
                 if (err.response?.status === 401) {
-                    setError("Session expirée. Veuillez vous reconnecter.");
+                    setError("Session expired. Please try again.");
                 } else if (err.response?.status === 403) {
-                    setError("Accès non autorisé.");
+                    setError("Access denied.");
                 } else {
-                    setError("Erreur lors du chargement des chats.");
+                    setError("Error while loading Chatroom");
                 }
             } finally {
                 setLoading(false);
@@ -49,25 +43,20 @@ const MyChatrooms = () => {
     }, [user]);
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce chat ?")) {
+        if (!window.confirm("Are you sure to delete this chatroom ?")) {
             return;
         }
 
         try {
-            console.log('🗑️ Suppression du chat:', id);
             await axios.delete(`http://localhost:8080/api/chatroom/delete/${id}`);
-
-            console.log('✅ Chat supprimé avec succès');
             setChats(prevChats => prevChats.filter(chat => chat.id !== id));
         } catch (err) {
-            console.error('❌ Erreur suppression:', err);
-
             if (err.response?.status === 401) {
-                alert("Session expirée. Veuillez vous reconnecter.");
+                alert("Session expired. Please try again.");
             } else if (err.response?.status === 403) {
-                alert("Vous n'avez pas les droits pour supprimer ce chat.");
+                alert("You do not have permission to delete this chat.");
             } else {
-                alert("Échec de la suppression. Veuillez réessayer.");
+                alert("Deletion failed. Please try again.");
             }
         }
     };
@@ -76,12 +65,17 @@ const MyChatrooms = () => {
         navigate(`/editChatroom/${id}`);
     };
 
-    // Gestion des états de chargement
     if (!user) {
         return (
-            <div className="page-container">
-                <div className="flex justify-center items-center h-64">
-                    <p className="text-lg">Veuillez vous connecter pour voir vos chats.</p>
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
+                <div className="max-w-4xl mx-auto">
+                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8">
+                        <div className="flex justify-center items-center h-64">
+                            <p className="text-lg text-slate-600 font-medium">
+                                Please login to see your chats.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -89,73 +83,99 @@ const MyChatrooms = () => {
 
     if (loading) {
         return (
-            <div className="page-container">
-                <h2>Mes Chats</h2>
-                <div className="flex justify-center items-center h-64">
-                    <p className="text-lg">Chargement de vos chats...</p>
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
+                <div className="max-w-4xl mx-auto">
+                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8">
+                        <div className="border-b border-slate-200 pb-6 mb-8">
+                            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent text-center">
+                                My chats
+                            </h2>
+                        </div>
+                        <div className="flex justify-center items-center h-64">
+                            <p className="text-lg text-slate-600 font-medium">Loading your chats...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="page-container">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Mes Chats</h2>
-                <div className="text-sm text-gray-600">
-                    Connecté en tant que: <strong>{user.firstname} {user.lastname}</strong>
-                </div>
-            </div>
-
-            {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    <p className="font-bold">{error}</p>
-                </div>
-            )}
-
-            <div className="chat-list">
-                {chats.length === 0 && !error ? (
-                    <div className="text-center py-8">
-                        <p className="text-gray-500 text-lg">Vous n'avez créé aucun chat.</p>
-                        <Link
-                            to="/createChatroom"
-                            className="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors"
-                        >
-                            Créer votre premier chat
-                        </Link>
-                    </div>
-                ) : (
-                    chats.map((chat) => (
-                        <div key={chat.id} className="chat-card">
-                            <div className="chat-info">
-                                <h3>{chat.channel}</h3>
-                                <p>{chat.description}</p>
-                                <div className="chat-meta">
-                                    <small className="text-gray-500">
-                                        Créé le {new Date(chat.date).toLocaleDateString()}
-                                    </small>
-                                </div>
-                            </div>
-                            <div className="chat-actions">
-                                <Link to={`/chat/${chat.id}`}>
-                                    <button className="view">Voir</button>
-                                </Link>
-                                <button
-                                    className="edit"
-                                    onClick={() => handleEdit(chat.id)}
-                                >
-                                    Modifier
-                                </button>
-                                <button
-                                    className="delete"
-                                    onClick={() => handleDelete(chat.id)}
-                                >
-                                    Supprimer
-                                </button>
-                            </div>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
+            <div className="max-w-4xl mx-auto">
+                <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 border-b border-slate-200 pb-6">
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent">
+                            My Chats
+                        </h2>
+                        <div className="px-4 py-2 bg-slate-100 rounded-full text-sm text-slate-600 font-medium">
+                            Logged as: <span className="text-blue-700 font-semibold">{user.firstname} {user.lastname}</span>
                         </div>
-                    ))
-                )}
+                    </div>
+
+                    {error && (
+                        <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg mb-6">
+                            <p className="text-red-700 font-medium">{error}</p>
+                        </div>
+                    )}
+
+                    <div className="space-y-4">
+                        {chats.length === 0 && !error ? (
+                            <div className="text-center py-16">
+                                <p className="text-slate-500 text-lg font-medium mb-6">You do not have chats.</p>
+                                <Link
+                                    to="/createChatroom"
+                                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+                                >
+                                    Create your first Chatroom
+                                </Link>
+                            </div>
+                        ) : (
+                            chats.map((chat) => (
+                                <div
+                                    key={chat.id}
+                                    className="group bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border border-blue-100/50 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                                >
+                                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-xl font-bold text-blue-800 mb-2 group-hover:text-blue-900 transition-colors">
+                                                {chat.channel}
+                                            </h3>
+                                            <p className="text-slate-600 mb-3 leading-relaxed">
+                                                {chat.description}
+                                            </p>
+                                            <div className="flex items-center text-sm text-slate-500">
+                                                Créé le {new Date(chat.date).toLocaleDateString()}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 lg:flex-shrink-0">
+                                            <Link to={`/chat/${chat.id}`}>
+                                                <button className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 hover:shadow-md transform hover:scale-105">
+                                                    View
+                                                </button>
+                                            </Link>
+
+                                            <button
+                                                className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-all duration-200 hover:shadow-md transform hover:scale-105"
+                                                onClick={() => handleEdit(chat.id)}
+                                            >
+                                                Modify
+                                            </button>
+
+                                            <button
+                                                className="flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all duration-200 hover:shadow-md transform hover:scale-105"
+                                                onClick={() => handleDelete(chat.id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );

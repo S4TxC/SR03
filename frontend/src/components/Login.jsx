@@ -28,8 +28,8 @@ const Login = () => {
                 setError(result.error);
             }
         } catch (err) {
-            console.error('Erreur login:', err);
-            setError('Erreur de connexion. Veuillez réessayer.');
+            console.error('Login error:', err);
+            setError('Error while logging in. Please try again');
         } finally {
             setIsLoading(false);
         }
@@ -79,7 +79,7 @@ const Login = () => {
 
                 <input
                     type="submit"
-                    value={isLoading ? "Connexion..." : "Login"}
+                    value={isLoading ? "Connection..." : "Login"}
                     disabled={isLoading}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl cursor-pointer transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 />
