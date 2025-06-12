@@ -10,6 +10,7 @@ import UserMenu from "./components/UserMenu";
 import Accueil from "./components/Accueil";
 import InvitedChatrooms from "./components/InvitedChatrooms";
 import MyChatrooms from "./components/MyChatrooms";
+import EditChatroom from "./components/EditChatroom";
 
 function App() {
     return (
@@ -72,6 +73,15 @@ function App() {
                         element={
                             <PrivateRoute>
                                 <MyChatrooms />
+                            </PrivateRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/editChatroom/:id"
+                        element={
+                            <PrivateRoute>
+                                <EditChatroom />
                             </PrivateRoute>
                         }
                     />

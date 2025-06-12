@@ -75,6 +75,27 @@ public class ServicesRequest {
                 .getResultList();
     }
 
+    public List<Users> getUsersFromChatroomId(int chatroomId) {
+        return em.createQuery(
+                        "SELECT uc.user FROM UserChat uc WHERE uc.chatroom.id = :chatroomId",
+                        Users.class)
+                .setParameter("chatroomId", chatroomId)
+                .getResultList();
+    }
+
+    public List<Integer> getUsersIdFromChatroomId(int chatroomId) {
+        return em.createQuery(
+                        "SELECT uc.user.id FROM UserChat uc WHERE uc.chatroom.id = :chatroomId",
+                        Integer.class)
+                .setParameter("chatroomId", chatroomId)
+                .getResultList();
+    }
+    public void deleteUserChatFromChatroomId(int chatroomId) {
+        em.createQuery("DELETE FROM UserChat uc WHERE uc.chatroom.id = :chatroomId")
+                .setParameter("chatroomId", chatroomId)
+                .executeUpdate();
+    }
+
     public List<Chatroom> getMyChatroomsFromUserId(int userId) {
         return em.createQuery(
                         "SELECT uc.chatroom FROM UserChat uc WHERE uc.idinvit.id = :userId",
@@ -92,8 +113,20 @@ public class ServicesRequest {
                 .getResultList();
     }
 
+    public Chatroom getChatroomById(int chatroomId) {
+        return em.createQuery(
+                        "SELECT c FROM Chatroom c WHERE c.id = :chatroomId",
+                        Chatroom.class)
+                .setParameter("chatroomId", chatroomId)
+                .getSingleResult();
+    }
+
     public void deleteChatroom(int chatroomId){
         em.remove(em.find(Chatroom.class, chatroomId));
+    }
+
+    public void updateChatroom(Chatroom chatroom){
+        em.merge(chatroom);
     }
 
 
