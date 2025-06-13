@@ -75,6 +75,66 @@ public class ChatroomRestController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/getChatroomById/{chatroomId}")
+    public ResponseEntity<ChatroomRequest> getChatroomById(@PathVariable int chatroomId) {
+        ChatroomRequest chatroomRequest = new ChatroomRequest();
+        Chatroom chatroom = servicesRequest.getChatroomById(chatroomId);
+        List<Users> listUsers = servicesRequest.getUsersFromChatroomId(chatroomId);
+        List<UsersDTO> listUsersDTO = new ArrayList<>();
+
+        chatroomRequest.setChannel(chatroom.getChannel());
+        chatroomRequest.setDate(chatroom.getDate());
+        chatroomRequest.setDescription(chatroom.getDescription());
+        chatroomRequest.setLifespan(chatroom.getLifespan());
+
+        for (Users users : listUsers) {
+            UsersDTO userDTO = new UsersDTO();
+            userDTO.setId(users.getId());
+            userDTO.setFirstname(users.getFirstname());
+            userDTO.setLastname(users.getLastname());
+            listUsersDTO.add(userDTO);
+        }
+
+        chatroomRequest.setUsersDTO(listUsersDTO);
+
+
+        return ResponseEntity.ok(chatroomRequest);
+    }
+
+    @PostMapping("/edit")
+    public ResponseEntity<?> editChatroom(@RequestBody ChatroomRequest request) {
+        Chatroom chatroom = servicesRequest.getChatroomById(request.getId());
+        chatroom.setChannel(request.getChannel());
+        chatroom.setDate(request.getDate());
+        chatroom.setDescription(request.getDescription());
+        chatroom.setLifespan(request.getLifespan());
+
+        servicesRequest.updateChatroom(chatroom);
+        servicesRequest.deleteUserChatFromChatroomId(request.getId());
+
+        // Récupérer les utilisateurs sélectionnés
+        List<Integer> usersIds = request.getUserIds();
+        int idInvit = request.getIdInvit();
+        System.out.println(idInvit);
+        Users userInvit = servicesRequest.getOneUser(idInvit);
+
+        for (int userId : usersIds) {
+            UserChat userChat = new UserChat();
+            userChat.setUser(servicesRequest.getOneUser(userId));
+            userChat.setChatroom(chatroom);
+            userChat.setIdinvit(userInvit);
+            servicesRequest.addUserChat(userChat);
+        }
+
+        UserChat userChat = new UserChat();
+        userChat.setUser(userInvit);
+        userChat.setChatroom(chatroom);
+        userChat.setIdinvit(userInvit);
+        servicesRequest.addUserChat(userChat);
+
+        return ResponseEntity.ok("Edition reussite !");
+    }
+
     @PostMapping("/create")
     public ResponseEntity<Chatroom> createChatroom(@RequestBody ChatroomRequest request) {
         Chatroom chatroom = new Chatroom();

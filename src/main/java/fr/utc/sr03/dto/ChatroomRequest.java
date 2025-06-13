@@ -4,12 +4,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class ChatroomRequest {
-
+    private int id;
     private String channel;
     private String description;
     private LocalDateTime date;
     private int lifespan;
     private List<Integer> userIds;
+    private List<UsersDTO> usersDTO;
     private int idInvit;
 
     // Constructeurs
@@ -70,5 +71,21 @@ public class ChatroomRequest {
 
     public void setIdInvit(int idInvit) {
         this.idInvit = idInvit;
+    }
+
+    public List<UsersDTO> getUsersDTO() {
+        return usersDTO;
+    }
+
+    public void setUsersDTO(List<UsersDTO> usersDTO) {
+        this.usersDTO = usersDTO;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
