@@ -16,4 +16,10 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(adminInterceptor)
                 .addPathPatterns("/admin/**");
     }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/api/uploads/images/**")
+                .addResourceLocations("file:C:/Users/y455/Pictures/SpringChatImages/");
+    }
 }

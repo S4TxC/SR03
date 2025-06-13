@@ -36,24 +36,24 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String roomName = getRoomName(session);
         List<MessageSocket> listMessage;
 
-        /*//Pour stocker le message dans l'historique
+        /* //Ancienne gestion de l'historique
         if (messageSocketsHistory.containsKey(roomName)) {
             listMessage = messageSocketsHistory.get(roomName);
         } else {
             listMessage = new ArrayList<>();
         }
         listMessage.add(messageSocket);
-        messageSocketsHistory.put(roomName, listMessage);*/
-        //messageSocketsHistory.add(messageSocket);
+        messageSocketsHistory.put(roomName, listMessage);
+        */
 
-        //Envoi du message à tous les connectés
-        this.broadcast(roomName, messageSocket.getUser() + " : " + messageSocket.getMessage());
+        // this.broadcast(roomName, messageSocket.getUser() + " : " + messageSocket.getMessage());
+
+        broadcast(roomName, messageSocket, mapper);
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
         HttpSession httpSession = (HttpSession) session.getAttributes().get("HTTP.SESSION");
-       // String userName = "default";
         String userName = getuserName(session);
 
         if (httpSession != null) {
@@ -72,14 +72,24 @@ public class WebSocketHandler extends TextWebSocketHandler {
             listSessions = new ArrayList<>();
         }
 
-        if (!listSessions.isEmpty()) this.broadcast(roomName, userName + " vient de se connecter !");
+        if (!listSessions.isEmpty()) {
+            // this.broadcast(roomName, userName + " vient de se connecter !");
+
+            ObjectMapper mapper = new ObjectMapper();
+            MessageSocket joinMsg = new MessageSocket();
+            joinMsg.setUser(userName);
+            joinMsg.setMessage(userName + " vient de se connecter !");
+            broadcast(roomName, joinMsg, mapper);
+        }
+
         listSessions.add(session);
         sessions.put(roomName, listSessions);
 
-        /* //J'affiche l'historique du salon
-        for(MessageSocket messageSocket : messageSocketsHistory){
-            session.sendMessage(new TextMessage(messageSocket.getUser()+ " : " + messageSocket.getMessage()));
-        }*/
+        /* // J'affiche l'historique du salon
+        for (MessageSocket messageSocket : messageSocketsHistory) {
+            session.sendMessage(new TextMessage(messageSocket.getUser() + " : " + messageSocket.getMessage()));
+        }
+        */
 
         logger.info(userName + " vient de se connecter sur " + roomName);
     }
@@ -93,19 +103,36 @@ public class WebSocketHandler extends TextWebSocketHandler {
         if (listSession.isEmpty()) {
             sessions.remove(roomName);
         } else {
-            //Quand le client quitte, on retire sa session
             sessions.put(roomName, listSession);
-            this.broadcast(roomName, userName + " vient de se déconnecter !");
+            // this.broadcast(roomName, userName + " vient de se déconnecter !");
+
+            ObjectMapper mapper = new ObjectMapper();
+            MessageSocket leaveMsg = new MessageSocket();
+            leaveMsg.setUser(userName);
+            leaveMsg.setMessage(userName + " vient de se déconnecter !");
+            broadcast(roomName, leaveMsg, mapper);
         }
         //sessions.remove(session);
         logger.info(userName + " vient de se déconnecter de " + roomName);
 
     }
 
+    /**
     public void broadcast(String room, String message) throws IOException {
         List<WebSocketSession> listSession = sessions.get(room);
         for (WebSocketSession session : listSession) {
             session.sendMessage(new TextMessage(message));
+        }
+    }*/
+
+    public void broadcast(String room, MessageSocket msgObj, ObjectMapper mapper) throws IOException {
+        String json = mapper.writeValueAsString(msgObj);
+        TextMessage wsMsg = new TextMessage(json);
+        List<WebSocketSession> listSession = sessions.get(room);
+        if (listSession != null) {
+            for (WebSocketSession sess : listSession) {
+                sess.sendMessage(wsMsg);
+            }
         }
     }
 
@@ -143,5 +170,4 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         return "default";
     }
-
 }

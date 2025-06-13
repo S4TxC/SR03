@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Header from './Header';
 import { useParams } from "react-router-dom";
 import { useAuth } from "./Authentication";
+import axios from "axios";
 
 const Chat = () => {
     const { id } = useParams();
@@ -10,6 +11,8 @@ const Chat = () => {
     const [ws, setWs] = useState(null);
     const [message, setMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [file, setFile] = useState(null);
+    const fileInputRef = useRef();
 
     useEffect(() => {
         if (!user?.id) return;
@@ -17,32 +20,54 @@ const Chat = () => {
         const username = user.firstname || 'Guest';
         const token = user.token || '';
 
-        const websocket = new WebSocket(`ws://localhost:8080/ws/chat?room=${id}&user=${username}&token=${token}`);
+        const websocket = new WebSocket(
+            `ws://localhost:8080/ws/chat?room=${id}&user=${username}&token=${token}`
+        );
 
         websocket.onmessage = (evt) => {
-            setMessages(prev => [...prev, evt.data]);
+            try {
+                const msg = JSON.parse(evt.data);
+                console.log('Message reçu avec image:', msg);
+                setMessages((prev) => [...prev, msg]);
+            } catch (e) {
+                console.error("Erreur lors de la désérialisation du message:", e);
+            }
         };
 
         setWs(websocket);
-
-        return () => {
-            websocket.close();
-        };
+        return () => websocket.close();
     }, [id, user]);
 
-    const sendMessage = () => {
-        if (!user?.id) return;
+    const sendMessage = async () => {
+        if (!user?.id || !ws) return;
 
-        if (ws && message.trim() !== '') {
-            const messageData = {
-                user: user.firstname || 'Guest',
-                message: message.trim()
-            };
-
-            ws.send(JSON.stringify(messageData));
-            setMessage('');
-            setIsTyping(false);
+        let imageUrl = null;
+        if (file) {
+            const form = new FormData();
+            form.append('file', file);
+            const res = await axios.post(
+                'http://localhost:8080/api/uploads/images',
+                form,
+                {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                    withCredentials: true,
+                }
+            );
+            imageUrl = res.data;
+                //.split(': ')[1]
+                //.replace(/\\\\/g, '/')
+                //.replace('D:/SpringBoot/images', '/api/uploads/images');
         }
+
+        const payload = {
+            user: user.firstname || 'Guest',
+            message: message.trim(),
+            imageUrl,
+        };
+        console.log('Payload envoyé:', payload);
+        ws.send(JSON.stringify(payload));
+        setMessage('');
+        setFile(null);
     };
 
     const handleKeyPress = (e) => {
@@ -62,8 +87,18 @@ const Chat = () => {
                     <div className="bg-white/80 backdrop-blur-lg shadow-2xl rounded-2xl border border-white/20 p-8">
                         <div className="text-center">
                             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-                                <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                <svg
+                                    className="w-8 h-8 text-red-500"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+                                    />
                                 </svg>
                             </div>
                             <p className="text-lg font-medium text-gray-800 mb-2">Session expired</p>
@@ -84,12 +119,16 @@ const Chat = () => {
                         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
-                                    <div className={`w-3 h-3 rounded-full shadow-lg ${ws ? 'bg-green-400' : 'bg-red-400'}`}></div>
+                                    <div
+                                        className={`w-3 h-3 rounded-full shadow-lg ${
+                                            ws ? 'bg-green-400' : 'bg-red-400'
+                                        }`}
+                                    ></div>
                                     <h2 className="text-xl font-semibold text-white">Chat</h2>
                                 </div>
                                 <div className="flex items-center space-x-2 text-blue-100">
                                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+                                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
                                     </svg>
                                     <span className="text-sm">{ws ? 'Online' : 'Offline'}</span>
                                 </div>
@@ -103,7 +142,12 @@ const Chat = () => {
                             {messages.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-full text-gray-500">
                                     <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                                        <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg
+                                            className="w-8 h-8 text-blue-500"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                         </svg>
                                     </div>
@@ -112,80 +156,162 @@ const Chat = () => {
                                 </div>
                             ) : (
                                 messages.map((msg, idx) => {
-                                    const currentUserName = user.firstname || 'Guest';
-                                    const colonIndex = msg.indexOf(' : ');
-                                    let messageUser = 'Unknown';
-                                    let messageContent = msg;
+                                    // Gestion des anciens messages (chaînes de caractères)
+                                    if (typeof msg === 'string') {
+                                        const colonIndex = msg.indexOf(' : ');
+                                        let messageUser = 'Unknown';
+                                        let messageContent = msg;
 
-                                    if (colonIndex !== -1) {
-                                        messageUser = msg.substring(0, colonIndex);
-                                        messageContent = msg.substring(colonIndex + 3);
-                                    }
+                                        if (colonIndex !== -1) {
+                                            messageUser = msg.substring(0, colonIndex);
+                                            messageContent = msg.substring(colonIndex + 3);
+                                        }
 
-                                    const isCurrentUser = messageUser === currentUserName;
+                                        const isCurrentUser = messageUser === (user.firstname || 'Guest');
 
-                                    if (messageContent.includes('has just connected!') ||
-                                        messageContent.includes('disconnected')) {
-                                        return (
-                                            <div key={idx} className="flex justify-center mb-2">
-                                                <div className="bg-gray-100 px-3 py-1 rounded-full">
-                                                    <p className="text-xs text-gray-500 text-center">{msg}</p>
+                                        if (messageContent.includes('has just connected!') ||
+                                            messageContent.includes('disconnected')) {
+                                            return (
+                                                <div key={idx} className="flex justify-center mb-2">
+                                                    <div className="bg-gray-100 px-3 py-1 rounded-full">
+                                                        <p className="text-xs text-gray-500 text-center">{msg}</p>
+                                                    </div>
                                                 </div>
+                                            );
+                                        }
+
+                                        return (
+                                            <div key={idx} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
+                                                {!isCurrentUser && (
+                                                    <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
+                                                        <div className="flex-shrink-0">
+                                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white text-xs font-bold">
+                                                                {messageUser.charAt(0).toUpperCase()}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <div className="flex items-center mb-1">
+                                                                <span className="text-xs font-medium text-gray-500">
+                                                                    {messageUser}
+                                                                </span>
+                                                            </div>
+                                                            <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-tl-md shadow-md">
+                                                                <p className="text-sm leading-relaxed text-gray-800">{messageContent}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {isCurrentUser && (
+                                                    <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
+                                                        <div className="flex flex-col">
+                                                            <div className="flex items-center justify-end mb-1">
+                                                                <span className="text-xs font-medium text-blue-500">
+                                                                    You
+                                                                </span>
+                                                            </div>
+                                                            <div className="bg-gradient-to-br from-blue-500 to-blue-600 px-4 py-3 rounded-2xl rounded-tr-md shadow-md text-white">
+                                                                <p className="text-sm leading-relaxed">{messageContent}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex-shrink-0">
+                                                            {user.avatarUrl ? (
+                                                                <img
+                                                                    src={`http://localhost:8080${user.avatarUrl}`}
+                                                                    alt="Votre avatar"
+                                                                    className="w-8 h-8 rounded-full object-cover border-2 border-blue-200"
+                                                                />
+                                                            ) : (
+                                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-white text-xs font-bold">
+                                                                    {(user.firstname || 'Guest').charAt(0).toUpperCase()}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         );
                                     }
+                                    else {
+                                        const isCurrentUser = msg.user === (user.firstname || 'Guest');
 
-                                    return (
-                                        <div key={idx} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
-                                            {!isCurrentUser && (
-                                                <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
-                                                    <div className="flex-shrink-0">
-                                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white text-xs font-bold">
-                                                            {messageUser.charAt(0).toUpperCase()}
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <div className="flex items-center mb-1">
-                                                            <span className="text-xs font-medium text-gray-500">
-                                                                {messageUser}
-                                                            </span>
-                                                        </div>
-                                                        <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-tl-md shadow-md">
-                                                            <p className="text-sm leading-relaxed text-gray-800">{messageContent}</p>
-                                                        </div>
+                                        if (msg.message && (msg.message.includes('has just connected!') ||
+                                            msg.message.includes('disconnected'))) {
+                                            return (
+                                                <div key={idx} className="flex justify-center mb-2">
+                                                    <div className="bg-gray-100 px-3 py-1 rounded-full">
+                                                        <p className="text-xs text-gray-500 text-center">{msg.user} : {msg.message}</p>
                                                     </div>
                                                 </div>
-                                            )}
+                                            );
+                                        }
 
-                                            {isCurrentUser && (
-                                                <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
-                                                    <div className="flex flex-col">
-                                                        <div className="flex items-center justify-end mb-1">
-                                                            <span className="text-xs font-medium text-blue-500">
-                                                                You
-                                                            </span>
-                                                        </div>
-                                                        <div className="bg-gradient-to-br from-blue-500 to-blue-600 px-4 py-3 rounded-2xl rounded-tr-md shadow-md text-white">
-                                                            <p className="text-sm leading-relaxed">{messageContent}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex-shrink-0">
-                                                        {user.avatarUrl ? (
-                                                            <img
-                                                                src={`http://localhost:8080${user.avatarUrl}`}
-                                                                alt="Votre avatar"
-                                                                className="w-8 h-8 rounded-full object-cover border-2 border-blue-200"
-                                                            />
-                                                        ) : (
-                                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-white text-xs font-bold">
-                                                                {currentUserName.charAt(0).toUpperCase()}
+                                        return (
+                                            <div key={idx} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
+                                                {!isCurrentUser && (
+                                                    <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
+                                                        <div className="flex-shrink-0">
+                                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white text-xs font-bold">
+                                                                {msg.user.charAt(0).toUpperCase()}
                                                             </div>
-                                                        )}
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <div className="flex items-center mb-1">
+                                                                <span className="text-xs font-medium text-gray-500">
+                                                                    {msg.user}
+                                                                </span>
+                                                            </div>
+                                                            <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-tl-md shadow-md">
+                                                                <p className="text-sm leading-relaxed text-gray-800">{msg.message}</p>
+                                                                {msg.imageUrl && (
+                                                                    <img
+                                                                        src={`http://localhost:8080${msg.imageUrl}`}
+                                                                        alt="sent-img"
+                                                                        className="mt-2 rounded-lg max-h-64 object-cover"
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
+                                                )}
+
+                                                {isCurrentUser && (
+                                                    <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
+                                                        <div className="flex flex-col">
+                                                            <div className="flex items-center justify-end mb-1">
+                                                                <span className="text-xs font-medium text-blue-500">
+                                                                    You
+                                                                </span>
+                                                            </div>
+                                                            <div className="bg-gradient-to-br from-blue-500 to-blue-600 px-4 py-3 rounded-2xl rounded-tr-md shadow-md text-white">
+                                                                <p className="text-sm leading-relaxed">{msg.message}</p>
+                                                                {msg.imageUrl && (
+                                                                    <img
+                                                                        src={`http://localhost:8080${msg.imageUrl}`}
+                                                                        alt="sent-img"
+                                                                        className="mt-2 rounded-lg max-h-64 object-cover"
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex-shrink-0">
+                                                            {user.avatarUrl ? (
+                                                                <img
+                                                                    src={`http://localhost:8080${user.avatarUrl}`}
+                                                                    alt="Votre avatar"
+                                                                    className="w-8 h-8 rounded-full object-cover border-2 border-blue-200"
+                                                                />
+                                                            ) : (
+                                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-white text-xs font-bold">
+                                                                    {(user.firstname || 'Guest').charAt(0).toUpperCase()}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    }
                                 })
                             )}
 
@@ -206,6 +332,21 @@ const Chat = () => {
                             <div className="flex items-center space-x-3">
                                 <div className="flex-1 relative">
                                     <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        ref={fileInputRef}
+                                        onChange={(e) => setFile(e.target.files[0])}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current.click()}
+                                        className="flex bg-gray-800 hover:bg-gray-700 text-white text-base font-medium px-4 py-2.5 rounded cursor-pointer absolute right-16 top-1/2 transform -translate-y-1/2"
+                                    >
+                                        Upload
+                                    </button>
+
+                                    <input
                                         type="text"
                                         value={message}
                                         onChange={(e) => setMessage(e.target.value)}
@@ -214,24 +355,13 @@ const Chat = () => {
                                         className="w-full px-4 py-3 bg-white border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 placeholder-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
                                         placeholder={ws && user ? "Enter your message..." : "Login..."}
                                     />
-                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.01M15 10h1.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </div>
                                 </div>
-
                                 <button
                                     onClick={sendMessage}
-                                    disabled={!message.trim() || !ws || !user}
+                                    disabled={!message.trim() && !file || !ws || !user}
                                     className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-semibold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 disabled:transform-none disabled:cursor-not-allowed"
                                 >
-                                    <span className="flex items-center gap-2">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                        </svg>
-                                        Send
-                                    </span>
+                                    Send
                                 </button>
                             </div>
                         </div>
