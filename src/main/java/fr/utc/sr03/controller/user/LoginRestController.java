@@ -54,10 +54,10 @@ public class LoginRestController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
+        if (session.getAttribute("userId") == null) {
             return ResponseEntity.status(401).body("Not connected");
         }
+        Long userId = Long.valueOf(session.getAttribute("userId").toString());
         Users user = usersRepository.findById(userId).orElse(null);
         if (user == null) {
             return ResponseEntity.status(404).body("User not found");

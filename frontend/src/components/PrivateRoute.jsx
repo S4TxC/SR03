@@ -13,7 +13,7 @@ const PrivateRoute = ({ children, requireAdmin = false }) => {
         );
     }
 
-    if (!user) {
+    if (user == null) {
         return <Navigate to="/login" replace />;
     }
 
