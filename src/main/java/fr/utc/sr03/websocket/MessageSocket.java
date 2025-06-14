@@ -25,8 +25,8 @@ public class MessageSocket {
     }
 
     @JsonProperty("imageUrl")
-    public String getImageURL() { return imageUrl; }
+    public String getImageUrl() { return imageUrl; }
 
     @JsonProperty("imageUrl")
-    public void setImageURL(String imageUrl) { this.imageUrl = imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

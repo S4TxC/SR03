@@ -71,7 +71,7 @@ public class ChatroomRestController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteChatroom(@PathVariable int id) {
-        servicesRequest.deleteChatroom(id);
+        servicesRequest.deleteChatroomAndUserChats(id);
         return ResponseEntity.noContent().build();
     }
 

@@ -1,8 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
 import Header from './Header';
+import SideBar from './SideBar';
 import { useParams } from "react-router-dom";
 import { useAuth } from "./Authentication";
 import axios from "axios";
+
+const getUserStatus = (username) => {
+    return true;
+};
 
 const Chat = () => {
     const { id } = useParams();
@@ -13,21 +18,36 @@ const Chat = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [file, setFile] = useState(null);
     const fileInputRef = useRef();
+    const messagesEndRef = useRef(null);
+    const [connectedUsers, setConnectedUsers] = useState([]);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
 
     useEffect(() => {
         if (!user?.id) return;
 
         const username = user.firstname || 'Guest';
-        const token = user.token || '';
 
         const websocket = new WebSocket(
-            `ws://localhost:8080/ws/chat?room=${id}&user=${username}&token=${token}`
+            `ws://localhost:8080/ws/chat?room=${id}&user=${username}`
         );
 
         websocket.onmessage = (evt) => {
             try {
                 const msg = JSON.parse(evt.data);
                 console.log('Message reçu avec image:', msg);
+
+                // Gestion des utilisateurs connectés
+                if (msg.connectedUsers) {
+                    setConnectedUsers(msg.connectedUsers);
+                }
+
                 setMessages((prev) => [...prev, msg]);
             } catch (e) {
                 console.error("Erreur lors de la désérialisation du message:", e);
@@ -54,9 +74,6 @@ const Chat = () => {
                 }
             );
             imageUrl = res.data;
-                //.split(': ')[1]
-                //.replace(/\\\\/g, '/')
-                //.replace('D:/SpringBoot/images', '/api/uploads/images');
         }
 
         const payload = {
@@ -81,28 +98,44 @@ const Chat = () => {
 
     if (!user) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+            <div
+                className="min-h-screen"
+                style={{
+                    backgroundImage: "url('/images/BackgroundChat.gif')",
+                    backgroundPosition: 'center',
+                    backgroundSize: 'cover'
+                }}
+            >
                 <Header />
                 <div className="flex justify-center items-center h-96">
-                    <div className="bg-white/80 backdrop-blur-lg shadow-2xl rounded-2xl border border-white/20 p-8">
+                    <div
+                        className="bg-white bg-opacity-20 p-8 border-4 border-black"
+                        style={{ borderRadius: '0' }}
+                    >
                         <div className="text-center">
-                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-                                <svg
-                                    className="w-8 h-8 text-red-500"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                            <div
+                                className="w-16 h-16 bg-red-600 border-2 border-black flex items-center justify-center mb-4 mx-auto"
+                                style={{ borderRadius: '0' }}
+                            >
+                                <span
+                                    className="text-white font-bold text-2xl"
+                                    style={{ fontFamily: "'Press Start 2P', cursive" }}
                                 >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-                                    />
-                                </svg>
+                                    !
+                                </span>
                             </div>
-                            <p className="text-lg font-medium text-gray-800 mb-2">Session expired</p>
-                            <p className="text-gray-600">Please sign in again to access chat.</p>
+                            <p
+                                className="text-lg font-bold text-gray-800 mb-2"
+                                style={{ fontFamily: "'Press Start 2P', cursive" }}
+                            >
+                                Session expired
+                            </p>
+                            <p
+                                className="text-gray-600"
+                                style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.8em' }}
+                            >
+                                Please sign in again to access chat.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -111,260 +144,412 @@ const Chat = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <div
+            className="min-h-screen"
+            style={{
+                backgroundImage: "url('/images/BackgroundChat.gif')",
+                backgroundPosition: 'center',
+                backgroundSize: 'cover'
+            }}
+        >
             <Header />
             <div className="flex justify-center px-4 py-8">
-                <div className="w-full max-w-4xl">
-                    <div className="bg-white/80 backdrop-blur-lg shadow-2xl rounded-2xl border border-white/20 overflow-hidden">
-                        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                    <div
-                                        className={`w-3 h-3 rounded-full shadow-lg ${
-                                            ws ? 'bg-green-400' : 'bg-red-400'
-                                        }`}
-                                    ></div>
-                                    <h2 className="text-xl font-semibold text-white">Chat</h2>
-                                </div>
-                                <div className="flex items-center space-x-2 text-blue-100">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
-                                    </svg>
-                                    <span className="text-sm">{ws ? 'Online' : 'Offline'}</span>
-                                </div>
-                            </div>
-                            <div className="mt-2 text-sm text-blue-100">
-                                Logged as: <strong>{user.firstname} {user.lastname}</strong>
-                            </div>
-                        </div>
-
-                        <div className="h-96 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50/50 to-white/50">
-                            {messages.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                                        <svg
-                                            className="w-8 h-8 text-blue-500"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
+                <div className="w-full max-w-7xl">
+                    <div className="flex w-full">
+                        <div className="flex-1 mr-4">
+                            <div className="bg-white bg-opacity-20 border-4 border-black overflow-hidden"
+                                 style={{ borderRadius: '0' }}
+                            >
+                                <div className="bg-blue-600 px-6 py-4 border-b-4 border-black">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-3">
+                                            <div className={`w-4 h-4 border-2 border-black ${
+                                                ws ? 'bg-green-400' : 'bg-red-400'
+                                            }`}
+                                                 style={{ borderRadius: '0' }}
+                                            ></div>
+                                            <h2
+                                                className="text-xl font-bold text-white"
+                                                style={{ fontFamily: "'Press Start 2P', cursive" }}
+                                            >
+                                                Chat
+                                            </h2>
+                                        </div>
+                                        <div
+                                            className="flex items-center space-x-2 text-white"
+                                            style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.8em' }}
                                         >
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                        </svg>
-                                    </div>
-                                    <p className="text-lg font-medium">No message</p>
-                                    <p className="text-sm">Start discussing!</p>
-                                </div>
-                            ) : (
-                                messages.map((msg, idx) => {
-                                    // Gestion des anciens messages (chaînes de caractères)
-                                    if (typeof msg === 'string') {
-                                        const colonIndex = msg.indexOf(' : ');
-                                        let messageUser = 'Unknown';
-                                        let messageContent = msg;
-
-                                        if (colonIndex !== -1) {
-                                            messageUser = msg.substring(0, colonIndex);
-                                            messageContent = msg.substring(colonIndex + 3);
-                                        }
-
-                                        const isCurrentUser = messageUser === (user.firstname || 'Guest');
-
-                                        if (messageContent.includes('has just connected!') ||
-                                            messageContent.includes('disconnected')) {
-                                            return (
-                                                <div key={idx} className="flex justify-center mb-2">
-                                                    <div className="bg-gray-100 px-3 py-1 rounded-full">
-                                                        <p className="text-xs text-gray-500 text-center">{msg}</p>
-                                                    </div>
-                                                </div>
-                                            );
-                                        }
-
-                                        return (
-                                            <div key={idx} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
-                                                {!isCurrentUser && (
-                                                    <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
-                                                        <div className="flex-shrink-0">
-                                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white text-xs font-bold">
-                                                                {messageUser.charAt(0).toUpperCase()}
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <div className="flex items-center mb-1">
-                                                                <span className="text-xs font-medium text-gray-500">
-                                                                    {messageUser}
-                                                                </span>
-                                                            </div>
-                                                            <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-tl-md shadow-md">
-                                                                <p className="text-sm leading-relaxed text-gray-800">{messageContent}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {isCurrentUser && (
-                                                    <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
-                                                        <div className="flex flex-col">
-                                                            <div className="flex items-center justify-end mb-1">
-                                                                <span className="text-xs font-medium text-blue-500">
-                                                                    You
-                                                                </span>
-                                                            </div>
-                                                            <div className="bg-gradient-to-br from-blue-500 to-blue-600 px-4 py-3 rounded-2xl rounded-tr-md shadow-md text-white">
-                                                                <p className="text-sm leading-relaxed">{messageContent}</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex-shrink-0">
-                                                            {user.avatarUrl ? (
-                                                                <img
-                                                                    src={`http://localhost:8080${user.avatarUrl}`}
-                                                                    alt="Votre avatar"
-                                                                    className="w-8 h-8 rounded-full object-cover border-2 border-blue-200"
-                                                                />
-                                                            ) : (
-                                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-white text-xs font-bold">
-                                                                    {(user.firstname || 'Guest').charAt(0).toUpperCase()}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    }
-                                    else {
-                                        const isCurrentUser = msg.user === (user.firstname || 'Guest');
-
-                                        if (msg.message && (msg.message.includes('has just connected!') ||
-                                            msg.message.includes('disconnected'))) {
-                                            return (
-                                                <div key={idx} className="flex justify-center mb-2">
-                                                    <div className="bg-gray-100 px-3 py-1 rounded-full">
-                                                        <p className="text-xs text-gray-500 text-center">{msg.user} : {msg.message}</p>
-                                                    </div>
-                                                </div>
-                                            );
-                                        }
-
-                                        return (
-                                            <div key={idx} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
-                                                {!isCurrentUser && (
-                                                    <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
-                                                        <div className="flex-shrink-0">
-                                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white text-xs font-bold">
-                                                                {msg.user.charAt(0).toUpperCase()}
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <div className="flex items-center mb-1">
-                                                                <span className="text-xs font-medium text-gray-500">
-                                                                    {msg.user}
-                                                                </span>
-                                                            </div>
-                                                            <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-tl-md shadow-md">
-                                                                <p className="text-sm leading-relaxed text-gray-800">{msg.message}</p>
-                                                                {msg.imageUrl && (
-                                                                    <img
-                                                                        src={`http://localhost:8080${msg.imageUrl}`}
-                                                                        alt="sent-img"
-                                                                        className="mt-2 rounded-lg max-h-64 object-cover"
-                                                                    />
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {isCurrentUser && (
-                                                    <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
-                                                        <div className="flex flex-col">
-                                                            <div className="flex items-center justify-end mb-1">
-                                                                <span className="text-xs font-medium text-blue-500">
-                                                                    You
-                                                                </span>
-                                                            </div>
-                                                            <div className="bg-gradient-to-br from-blue-500 to-blue-600 px-4 py-3 rounded-2xl rounded-tr-md shadow-md text-white">
-                                                                <p className="text-sm leading-relaxed">{msg.message}</p>
-                                                                {msg.imageUrl && (
-                                                                    <img
-                                                                        src={`http://localhost:8080${msg.imageUrl}`}
-                                                                        alt="sent-img"
-                                                                        className="mt-2 rounded-lg max-h-64 object-cover"
-                                                                    />
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex-shrink-0">
-                                                            {user.avatarUrl ? (
-                                                                <img
-                                                                    src={`http://localhost:8080${user.avatarUrl}`}
-                                                                    alt="Votre avatar"
-                                                                    className="w-8 h-8 rounded-full object-cover border-2 border-blue-200"
-                                                                />
-                                                            ) : (
-                                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-white text-xs font-bold">
-                                                                    {(user.firstname || 'Guest').charAt(0).toUpperCase()}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    }
-                                })
-                            )}
-
-                            {isTyping && (
-                                <div className="flex justify-start">
-                                    <div className="bg-gray-100 px-4 py-3 rounded-2xl border border-gray-200">
-                                        <div className="flex space-x-1">
-                                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                            <span>{ws ? 'Online' : 'Offline'}</span>
                                         </div>
                                     </div>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="p-4 bg-white/70 backdrop-blur-sm border-t border-gray-200/50">
-                            <div className="flex items-center space-x-3">
-                                <div className="flex-1 relative">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        ref={fileInputRef}
-                                        onChange={(e) => setFile(e.target.files[0])}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => fileInputRef.current.click()}
-                                        className="flex bg-gray-800 hover:bg-gray-700 text-white text-base font-medium px-4 py-2.5 rounded cursor-pointer absolute right-16 top-1/2 transform -translate-y-1/2"
+                                    <div
+                                        className="mt-2 text-white"
+                                        style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.8em' }}
                                     >
-                                        Upload
-                                    </button>
-
-                                    <input
-                                        type="text"
-                                        value={message}
-                                        onChange={(e) => setMessage(e.target.value)}
-                                        onKeyPress={handleKeyPress}
-                                        disabled={!ws || !user}
-                                        className="w-full px-4 py-3 bg-white border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 placeholder-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                                        placeholder={ws && user ? "Enter your message..." : "Login..."}
-                                    />
+                                        Logged as: <strong>{user.firstname} {user.lastname}</strong>
+                                    </div>
                                 </div>
-                                <button
-                                    onClick={sendMessage}
-                                    disabled={!message.trim() && !file || !ws || !user}
-                                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-semibold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 disabled:transform-none disabled:cursor-not-allowed"
-                                >
-                                    Send
-                                </button>
+                                <div className="h-96 overflow-y-auto p-6 space-y-4 bg-gray-100 bg-opacity-20">
+                                    {messages.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                                            <div
+                                                className="w-16 h-16 bg-blue-600 border-2 border-black flex items-center justify-center mb-4"
+                                                style={{ borderRadius: '0' }}
+                                            >
+                                                <span
+                                                    className="text-white font-bold text-2xl"
+                                                    style={{ fontFamily: "'Press Start 2P', cursive" }}
+                                                >
+                                                    ?
+                                                </span>
+                                            </div>
+                                            <p
+                                                className="text-lg font-bold"
+                                                style={{ fontFamily: "'Press Start 2P', cursive" }}
+                                            >
+                                                No message
+                                            </p>
+                                            <p
+                                                style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.8em' }}
+                                            >
+                                                Start discussing!
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        messages.map((msg, idx) => {
+                                            // Gestion des anciens messages (chaînes de caractères)
+                                            if (typeof msg === 'string') {
+                                                const colonIndex = msg.indexOf(' : ');
+                                                let messageUser = 'Unknown';
+                                                let messageContent = msg;
+
+                                                if (colonIndex !== -1) {
+                                                    messageUser = msg.substring(0, colonIndex);
+                                                    messageContent = msg.substring(colonIndex + 3);
+                                                }
+
+                                                const isCurrentUser = messageUser === (user.firstname || 'Guest');
+
+                                                if (messageContent.includes('has just connected!') ||
+                                                    messageContent.includes('disconnected')) {
+                                                    return (
+                                                        <div key={idx} className="flex justify-center mb-2">
+                                                            <div
+                                                                className="bg-gray-400 px-3 py-1 border-2 border-black"
+                                                                style={{ borderRadius: '0' }}
+                                                            >
+                                                                <p
+                                                                    className="text-xs text-white text-center font-bold"
+                                                                    style={{ fontFamily: "'Press Start 2P', cursive" }}
+                                                                >
+                                                                    {msg}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <div key={idx} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
+                                                        {!isCurrentUser && (
+                                                            <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
+                                                                <div className="flex-shrink-0">
+                                                                    <div
+                                                                        className="w-8 h-8 bg-gray-600 border-2 border-black flex items-center justify-center text-white font-bold"
+                                                                        style={{
+                                                                            borderRadius: '0',
+                                                                            fontFamily: "'Press Start 2P', cursive",
+                                                                            fontSize: '0.6em'
+                                                                        }}
+                                                                    >
+                                                                        {messageUser.charAt(0).toUpperCase()}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex flex-col">
+                                                                    <div className="flex items-center mb-1">
+                                                                        <span
+                                                                            className="text-xs font-bold text-gray-700"
+                                                                            style={{ fontFamily: "'Press Start 2P', cursive" }}
+                                                                        >
+                                                                            {messageUser}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div
+                                                                        className="bg-white border-2 border-black px-4 py-3"
+                                                                        style={{ borderRadius: '0' }}
+                                                                    >
+                                                                        <p
+                                                                            className="text-sm leading-relaxed text-gray-800"
+                                                                            style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.7em' }}
+                                                                        >
+                                                                            {messageContent}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {isCurrentUser && (
+                                                            <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
+                                                                <div className="flex flex-col">
+                                                                    <div className="flex items-center justify-end mb-1">
+                                                                        <span
+                                                                            className="text-xs font-bold text-blue-600"
+                                                                            style={{ fontFamily: "'Press Start 2P', cursive" }}
+                                                                        >
+                                                                            You
+                                                                        </span>
+                                                                    </div>
+                                                                    <div
+                                                                        className="bg-blue-600 border-2 border-black px-4 py-3 text-white"
+                                                                        style={{ borderRadius: '0' }}
+                                                                    >
+                                                                        <p
+                                                                            className="text-sm leading-relaxed"
+                                                                            style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.7em' }}
+                                                                        >
+                                                                            {messageContent}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex-shrink-0">
+                                                                    {user.avatarUrl ? (
+                                                                        <img
+                                                                            src={`http://localhost:8080${user.avatarUrl}`}
+                                                                            alt="Votre avatar"
+                                                                            className="w-8 h-8 object-cover border-2 border-black"
+                                                                            style={{ borderRadius: '0', imageRendering: 'pixelated' }}
+                                                                        />
+                                                                    ) : (
+                                                                        <div
+                                                                            className="w-8 h-8 bg-blue-600 border-2 border-black flex items-center justify-center text-white font-bold"
+                                                                            style={{
+                                                                                borderRadius: '0',
+                                                                                fontFamily: "'Press Start 2P', cursive",
+                                                                                fontSize: '0.6em'
+                                                                            }}
+                                                                        >
+                                                                            {(user.firstname || 'Guest').charAt(0).toUpperCase()}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            }
+                                            else {
+                                                const isCurrentUser = msg.user === (user.firstname || 'Guest');
+
+                                                if (msg.message && (msg.message.includes('has just connected!') ||
+                                                    msg.message.includes('disconnected'))) {
+                                                    return (
+                                                        <div key={idx} className="flex justify-center mb-2">
+                                                            <div
+                                                                className="bg-gray-400 px-3 py-1 border-2 border-black"
+                                                                style={{ borderRadius: '0' }}
+                                                            >
+                                                                <p
+                                                                    className="text-xs text-white text-center font-bold"
+                                                                    style={{ fontFamily: "'Press Start 2P', cursive" }}
+                                                                >
+                                                                    {msg.user} : {msg.message}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <div key={idx} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
+                                                        {!isCurrentUser && (
+                                                            <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
+                                                                <div className="flex-shrink-0">
+                                                                    <div
+                                                                        className="w-8 h-8 bg-gray-600 border-2 border-black flex items-center justify-center text-white font-bold"
+                                                                        style={{
+                                                                            borderRadius: '0',
+                                                                            fontFamily: "'Press Start 2P', cursive",
+                                                                            fontSize: '0.6em'
+                                                                        }}
+                                                                    >
+                                                                        {msg.user.charAt(0).toUpperCase()}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex flex-col">
+                                                                    <div className="flex items-center mb-1">
+                                                                        <span
+                                                                            className="text-xs font-bold text-gray-700"
+                                                                            style={{ fontFamily: "'Press Start 2P', cursive" }}
+                                                                        >
+                                                                            {msg.user}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div
+                                                                        className="bg-white border-2 border-black px-4 py-3"
+                                                                        style={{ borderRadius: '0' }}
+                                                                    >
+                                                                        <p
+                                                                            className="text-sm leading-relaxed text-gray-800"
+                                                                            style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.7em' }}
+                                                                        >
+                                                                            {msg.message}
+                                                                        </p>
+                                                                        {msg.imageUrl && (
+                                                                            <img
+                                                                                src={`http://localhost:8080${msg.imageUrl}`}
+                                                                                alt="sent-img"
+                                                                                className="mt-2 max-h-64 object-cover border-2 border-black"
+                                                                                style={{ borderRadius: '0', imageRendering: 'pixelated' }}
+                                                                            />
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {isCurrentUser && (
+                                                            <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
+                                                                <div className="flex flex-col">
+                                                                    <div className="flex items-center justify-end mb-1">
+                                                                        <span
+                                                                            className="text-xs font-bold text-blue-600"
+                                                                            style={{ fontFamily: "'Press Start 2P', cursive" }}
+                                                                        >
+                                                                            You
+                                                                        </span>
+                                                                    </div>
+                                                                    <div
+                                                                        className="bg-blue-600 border-2 border-black px-4 py-3 text-white"
+                                                                        style={{ borderRadius: '0' }}
+                                                                    >
+                                                                        <p
+                                                                            className="text-sm leading-relaxed"
+                                                                            style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.7em' }}
+                                                                        >
+                                                                            {msg.message}
+                                                                        </p>
+                                                                        {msg.imageUrl && (
+                                                                            <img
+                                                                                src={`http://localhost:8080${msg.imageUrl}`}
+                                                                                alt="sent-img"
+                                                                                className="mt-2 max-h-64 object-cover border-2 border-black"
+                                                                                style={{ borderRadius: '0', imageRendering: 'pixelated' }}
+                                                                            />
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex-shrink-0">
+                                                                    {user.avatarUrl ? (
+                                                                        <img
+                                                                            src={`http://localhost:8080${user.avatarUrl}`}
+                                                                            alt="Votre avatar"
+                                                                            className="w-8 h-8 object-cover border-2 border-black"
+                                                                            style={{ borderRadius: '0', imageRendering: 'pixelated' }}
+                                                                        />
+                                                                    ) : (
+                                                                        <div
+                                                                            className="w-8 h-8 bg-blue-600 border-2 border-black flex items-center justify-center text-white font-bold"
+                                                                            style={{
+                                                                                borderRadius: '0',
+                                                                                fontFamily: "'Press Start 2P', cursive",
+                                                                                fontSize: '0.6em'
+                                                                            }}
+                                                                        >
+                                                                            {(user.firstname || 'Guest').charAt(0).toUpperCase()}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            }
+                                        })
+                                    )}
+
+                                    {isTyping && (
+                                        <div className="flex justify-start">
+                                            <div
+                                                className="bg-gray-300 px-4 py-3 border-2 border-black"
+                                                style={{ borderRadius: '0' }}
+                                            >
+                                                <div className="flex space-x-1">
+                                                    <div className="w-2 h-2 bg-gray-600 animate-bounce" style={{ borderRadius: '0' }}></div>
+                                                    <div className="w-2 h-2 bg-gray-600 animate-bounce" style={{ borderRadius: '0', animationDelay: '0.1s' }}></div>
+                                                    <div className="w-2 h-2 bg-gray-600 animate-bounce" style={{ borderRadius: '0', animationDelay: '0.2s' }}></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div ref={messagesEndRef} />
+                                </div>
+                                <div className="p-4 bg-white border-t-4 border-black">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="flex-1 relative">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                ref={fileInputRef}
+                                                onChange={(e) => setFile(e.target.files[0])}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => fileInputRef.current.click()}
+                                                className="bg-gray-800 hover:bg-gray-700 text-white font-bold px-4 py-2.5 border-2 border-black cursor-pointer absolute right-16 top-1/2 transform -translate-y-1/2"
+                                                style={{
+                                                    borderRadius: '0',
+                                                    fontFamily: "'Press Start 2P', cursive",
+                                                    fontSize: '0.7em'
+                                                }}
+                                            >
+                                                Upload
+                                            </button>
+
+                                            <input
+                                                type="text"
+                                                value={message}
+                                                onChange={(e) => setMessage(e.target.value)}
+                                                onKeyPress={handleKeyPress}
+                                                disabled={!ws || !user}
+                                                className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:shadow-outline disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                                style={{
+                                                    borderRadius: '0',
+                                                    fontFamily: "'Press Start 2P', cursive",
+                                                    fontSize: '0.8em'
+                                                }}
+                                                placeholder={ws && user ? "Enter your message..." : "Login..."}
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={sendMessage}
+                                            disabled={!message.trim() && !file || !ws || !user}
+                                            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold border-2 border-black disabled:cursor-not-allowed"
+                                            style={{
+                                                borderRadius: '0',
+                                                fontFamily: "'Press Start 2P', cursive"
+                                            }}
+                                        >
+                                            Send
+                                        </button>
+                                    </div>
+                                    {file && (
+                                        <div
+                                            className="mt-2 text-sm text-gray-600"
+                                            style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.7em' }}
+                                        >
+                                            File: {file.name}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
+                        <SideBar
+                            connectedUsers={connectedUsers}
+                            currentUser={user}
+                            getUserStatus={getUserStatus}
+                        />
                     </div>
                 </div>
             </div>

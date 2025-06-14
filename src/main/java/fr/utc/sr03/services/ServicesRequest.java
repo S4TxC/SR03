@@ -181,6 +181,12 @@ public class ServicesRequest {
                 search, search, search, pageRequest);
     }
 
+    @Transactional
+    public void deleteChatroomAndUserChats(int chatroomId) {
+        deleteUserChatFromChatroomId(chatroomId);
+        deleteChatroom(chatroomId);
+    }
+
 
 
 

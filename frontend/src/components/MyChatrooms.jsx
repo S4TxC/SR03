@@ -67,118 +67,256 @@ const MyChatrooms = () => {
 
     if (!user) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
-                <div className="max-w-4xl mx-auto">
-                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8">
-                        <div className="flex justify-center items-center h-64">
-                            <p className="text-lg text-slate-600 font-medium">
-                                Please login to see your chats.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <CenteredMessage message="Please login to see your chats." />
         );
     }
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
-                <div className="max-w-4xl mx-auto">
-                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8">
-                        <div className="border-b border-slate-200 pb-6 mb-8">
-                            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent text-center">
-                                My chats
-                            </h2>
-                        </div>
-                        <div className="flex justify-center items-center h-64">
-                            <p className="text-lg text-slate-600 font-medium">Loading your chats...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
+        return <CenteredMessage message="Loading your chats..." />;
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
-            <div className="max-w-4xl mx-auto">
-                <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8">
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 border-b border-slate-200 pb-6">
-                        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent">
-                            My Chats
-                        </h2>
-                        <div className="px-4 py-2 bg-slate-100 rounded-full text-sm text-slate-600 font-medium">
-                            Logged as: <span className="text-blue-700 font-semibold">{user.firstname} {user.lastname}</span>
-                        </div>
-                    </div>
+        <div
+            className="min-h-screen py-8 px-4"
+            style={{
+                backgroundImage: "url('/images/BackgroundDashboard.gif')",
+                backgroundPosition: 'center',
+                backgroundSize: 'cover'
+            }}
+        >
+            <div className="max-w-5xl mx-auto">
+                <Header user={user} />
 
-                    {error && (
-                        <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg mb-6">
-                            <p className="text-red-700 font-medium">{error}</p>
-                        </div>
-                    )}
-
-                    <div className="space-y-4">
-                        {chats.length === 0 && !error ? (
-                            <div className="text-center py-16">
-                                <p className="text-slate-500 text-lg font-medium mb-6">You do not have chats.</p>
-                                <Link
-                                    to="/createChatroom"
-                                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+                {error && (
+                    <div
+                        className="bg-red-600 bg-opacity-80 border-4 border-black p-6 mb-8"
+                        style={{ borderRadius: '0' }}
+                    >
+                        <div className="flex items-center">
+                            <div
+                                className="w-8 h-8 bg-white border-2 border-black flex items-center justify-center mr-4"
+                                style={{ borderRadius: '0' }}
+                            >
+                                <span
+                                    className="text-red-600 font-bold"
+                                    style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.8em' }}
                                 >
-                                    Create your first Chatroom
-                                </Link>
+                                    !
+                                </span>
                             </div>
-                        ) : (
-                            chats.map((chat) => (
-                                <div
-                                    key={chat.id}
-                                    className="group bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border border-blue-100/50 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-                                >
-                                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="text-xl font-bold text-blue-800 mb-2 group-hover:text-blue-900 transition-colors">
-                                                {chat.channel}
-                                            </h3>
-                                            <p className="text-slate-600 mb-3 leading-relaxed">
-                                                {chat.description}
-                                            </p>
-                                            <div className="flex items-center text-sm text-slate-500">
-                                                Créé le {new Date(chat.date).toLocaleDateString()}
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-2 lg:flex-shrink-0">
-                                            <Link to={`/chat/${chat.id}`}>
-                                                <button className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 hover:shadow-md transform hover:scale-105">
-                                                    View
-                                                </button>
-                                            </Link>
-
-                                            <button
-                                                className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-all duration-200 hover:shadow-md transform hover:scale-105"
-                                                onClick={() => handleEdit(chat.id)}
-                                            >
-                                                Modify
-                                            </button>
-
-                                            <button
-                                                className="flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all duration-200 hover:shadow-md transform hover:scale-105"
-                                                onClick={() => handleDelete(chat.id)}
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        )}
+                            <p
+                                className="text-white font-bold"
+                                style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.8em' }}
+                            >
+                                {error}
+                            </p>
+                        </div>
                     </div>
-                </div>
+                )}
+
+                <ChatSection chats={chats} onEdit={handleEdit} onDelete={handleDelete} />
             </div>
         </div>
     );
 };
+
+const CenteredMessage = ({ message, error = false }) => (
+    <div
+        className="flex justify-center items-center h-screen"
+        style={{
+            backgroundImage: "url('/images/BackgroundDashboard.gif')",
+            backgroundPosition: 'center',
+            backgroundSize: 'cover'
+        }}
+    >
+        <div
+            className="bg-white bg-opacity-80 p-8 border-4 border-black"
+            style={{ borderRadius: '0' }}
+        >
+            <div className="text-center">
+                <div
+                    className={`w-16 h-16 ${error ? 'bg-red-600' : 'bg-blue-600'} border-2 border-black flex items-center justify-center mb-4 mx-auto`}
+                    style={{ borderRadius: '0' }}
+                >
+                    <span
+                        className="text-white font-bold text-2xl"
+                        style={{ fontFamily: "'Press Start 2P', cursive" }}
+                    >
+                        {error ? '!' : '?'}
+                    </span>
+                </div>
+                <p
+                    className={`text-lg font-bold mb-2 ${error ? 'text-red-600' : 'text-gray-800'}`}
+                    style={{ fontFamily: "'Press Start 2P', cursive" }}
+                >
+                    {message}
+                </p>
+            </div>
+        </div>
+    </div>
+);
+
+const Header = ({ user }) => {
+    const navigate = useNavigate();
+
+    return (
+        <div
+            className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 bg-white bg-opacity-70 border-4 border-black p-6"
+            style={{ borderRadius: '0' }}
+        >
+            <h2
+                className="text-3xl font-bold text-black cursor-pointer hover:text-blue-600 transition"
+                style={{ fontFamily: "'Press Start 2P', cursive" }}
+                onClick={() => navigate("/userMenu")}
+            >
+                My Chats
+            </h2>
+
+            <div
+                className="bg-gray-800 border-2 border-black px-4 py-2"
+                style={{ borderRadius: '0' }}
+            >
+                <span
+                    className="text-sm text-white"
+                    style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.8em' }}
+                >
+                    Logged as: <strong className="text-blue-400">{user.firstname} {user.lastname}</strong>
+                </span>
+            </div>
+        </div>
+    );
+};
+
+
+const ChatSection = ({ chats, onEdit, onDelete }) => (
+    <div className="mb-10">
+        {chats.length === 0 ? (
+            <div
+                className="bg-white bg-opacity-70 border-4 border-black p-6"
+                style={{ borderRadius: '0' }}
+            >
+                <div className="text-center">
+                    <div
+                        className="w-16 h-16 bg-gray-600 border-2 border-black flex items-center justify-center mb-4 mx-auto"
+                        style={{ borderRadius: '0' }}
+                    >
+                        <span
+                            className="text-white font-bold text-2xl"
+                            style={{ fontFamily: "'Press Start 2P', cursive" }}
+                        >
+                            ?
+                        </span>
+                    </div>
+                    <p
+                        className="text-gray-600 font-bold mb-6"
+                        style={{ fontFamily: "'Press Start 2P', cursive" }}
+                    >
+                        You do not have chats.
+                    </p>
+                    <Link to="/createChatroom">
+                        <button
+                            className="py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold border-2 border-black transition-all duration-200 hover:opacity-90"
+                            style={{
+                                borderRadius: '0',
+                                fontFamily: "'Press Start 2P', cursive",
+                                fontSize: '0.8em'
+                            }}
+                        >
+                            Create your first Chatroom
+                        </button>
+                    </Link>
+                </div>
+            </div>
+        ) : (
+            <div className="grid grid-cols-1 gap-6">
+                {chats.map((chat) => (
+                    <ChatCard key={chat.id} chat={chat} onEdit={onEdit} onDelete={onDelete} />
+                ))}
+            </div>
+        )}
+    </div>
+);
+
+const ChatCard = ({ chat, onEdit, onDelete }) => (
+    <div
+        className="bg-white bg-opacity-80 border-4 border-black p-6 hover:bg-opacity-90 transition-all duration-200"
+        style={{ borderRadius: '0' }}
+    >
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-start space-x-4 flex-1">
+                <div
+                    className="w-12 h-12 bg-blue-600 border-2 border-black flex items-center justify-center flex-shrink-0"
+                    style={{ borderRadius: '0' }}
+                >
+                    <span
+                        className="text-white font-bold"
+                        style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.9em' }}
+                    >
+                        {chat.channel.charAt(0).toUpperCase()}
+                    </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                    <h4
+                        className="text-xl font-bold text-black mb-2"
+                        style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '1em' }}
+                    >
+                        {chat.channel}
+                    </h4>
+                    <p
+                        className="text-sm text-gray-600 mb-3"
+                        style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.7em' }}
+                    >
+                        {chat.description}
+                    </p>
+                    <div
+                        className="text-xs text-gray-500"
+                        style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.6em' }}
+                    >
+                        Créé le {new Date(chat.date).toLocaleDateString()}
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex items-center gap-2 lg:flex-shrink-0">
+                <Link to={`/chat/${chat.id}`}>
+                    <button
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold border-2 border-black transition-all duration-200 hover:opacity-90"
+                        style={{
+                            borderRadius: '0',
+                            fontFamily: "'Press Start 2P', cursive",
+                            fontSize: '0.7em'
+                        }}
+                    >
+                        View
+                    </button>
+                </Link>
+
+                <button
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold border-2 border-black transition-all duration-200 hover:opacity-90"
+                    style={{
+                        borderRadius: '0',
+                        fontFamily: "'Press Start 2P', cursive",
+                        fontSize: '0.7em'
+                    }}
+                    onClick={() => onEdit(chat.id)}
+                >
+                    Modify
+                </button>
+
+                <button
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold border-2 border-black transition-all duration-200 hover:opacity-90"
+                    style={{
+                        borderRadius: '0',
+                        fontFamily: "'Press Start 2P', cursive",
+                        fontSize: '0.7em'
+                    }}
+                    onClick={() => onDelete(chat.id)}
+                >
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+);
 
 export default MyChatrooms;

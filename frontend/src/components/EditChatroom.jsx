@@ -34,8 +34,6 @@ function EditChatroom() {
     }, [id]);
 
     useEffect(() => {
-
-
         const timeoutId = setTimeout(() => {
             if (!user?.id || search.trim() === "") {
                 setUsers([]);
@@ -128,151 +126,305 @@ function EditChatroom() {
 
     if (!user) {
         return (
-            <div className="flex items-center justify-center h-screen text-xl text-gray-700">
-                Please login to edit a Chatroom.
+            <div
+                className="min-h-screen flex justify-center items-center"
+                style={{
+                    backgroundImage: "url('/images/BackgroundRegister.gif')",
+                    backgroundPosition: 'center',
+                    backgroundSize: 'cover',
+                    margin: 0,
+                    padding: 0
+                }}
+            >
+                <div className="text-center bg-white bg-opacity-80 p-8 border-4 border-black">
+                    <p
+                        className="text-xl text-gray-700"
+                        style={{ fontFamily: "'Press Start 2P', cursive" }}
+                    >
+                        Please login to edit a Chatroom.
+                    </p>
+                </div>
             </div>
         );
     }
 
+    const isFormEmpty = channel === '' || date === '' || lifespan === '' || selectedUsers.length === 0;
+
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold">Edit a Chatroom</h2>
-                <p className="text-sm text-gray-500">
-                    Created by: <strong>{user.firstname} {user.lastname}</strong>
-                </p>
-            </div>
-
-            {success && (
-                <div className="bg-green-100 border border-green-400 text-green-700 p-3 rounded mb-4">
-                    Chatroom edited successfully.
-                </div>
-            )}
-
-            {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded mb-4">
-                    {error}
-                </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium">Chatroom Name*</label>
-                    <input
-                        className="w-full border rounded px-3 py-2 mt-1"
-                        value={channel}
-                        onChange={(e) => setChannel(e.target.value)}
-                        placeholder="Chatroom Name"
-                        maxLength="100"
+        <div
+            className="min-h-screen flex justify-center items-center p-4"
+            style={{
+                backgroundImage: "url('/images/BackgroundRegister.gif')",
+                backgroundPosition: 'center',
+                backgroundSize: 'cover',
+                margin: 0,
+                padding: 0
+            }}
+        >
+            <div className="relative w-full max-w-4xl">
+                <div
+                    className={`relative px-8 pt-6 pb-8 mb-4 border-4 border-black transition-all duration-300 ${
+                        isFormEmpty ? 'bg-white bg-opacity-30' : 'bg-white bg-opacity-80'
+                    }`}
+                    style={{
+                        borderRadius: '0'
+                    }}
+                >
+                    <img
+                        src="/images/Dante.png"
+                        alt="DMC"
+                        className="absolute -bottom-0 -left-0 w-20 h-20 transform -translate-x-1/2 translate-y-1/2"
+                        style={{ imageRendering: 'pixelated' }}
                     />
-                </div>
 
-                <div>
-                    <label className="block text-sm font-medium">Description</label>
-                    <textarea
-                        className="w-full border rounded px-3 py-2 mt-1"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Description (optional)"
-                        maxLength="500"
+                    <img
+                        src="/images/Yveltal.png"
+                        alt="AmongUS"
+                        className="absolute -bottom-0 -right-0 w-28 h-28 transform translate-x-1/2 translate-y-1/2"
+                        style={{ imageRendering: 'pixelated' }}
                     />
-                </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium">Date & time *</label>
-                        <input
-                            type="datetime-local"
-                            className="w-full border rounded px-3 py-2 mt-1"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                            min={new Date().toISOString().slice(0, 16)}
-                        />
+                    <div className="flex justify-between items-center mb-6">
+                        <h2
+                            className="text-2xl font-bold"
+                            style={{ fontFamily: "'Press Start 2P', cursive" }}
+                        >
+                            Edit a Chatroom
+                        </h2>
+                        <p
+                            className="text-sm text-gray-700"
+                            style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.7em' }}
+                        >
+                            Created by: <strong>{user.firstname} {user.lastname}</strong>
+                        </p>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium">Life span (days) *</label>
-                        <input
-                            type="number"
-                            className="w-full border rounded px-3 py-2 mt-1"
-                            min="1"
-                            max="365"
-                            value={lifespan}
-                            onChange={(e) => setLifespan(e.target.value)}
-                            placeholder="Ex: 7"
-                        />
-                    </div>
-                </div>
+                    {success && (
+                        <div className="bg-green-100 border-4 border-green-600 text-green-700 p-3 mb-4" style={{ borderRadius: '0' }}>
+                            <p style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.8em' }}>
+                                Chatroom edited successfully.
+                            </p>
+                        </div>
+                    )}
 
-                <div>
-                    <label className="block text-sm font-medium">Search for a user</label>
-                    <input
-                        type="text"
-                        className="w-full border rounded px-3 py-2 mt-1"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Username"
-                    />
-                    {searchLoading && <p className="text-sm text-gray-400 mt-1">Searching...</p>}
-                </div>
+                    {error && (
+                        <div className="bg-red-100 border-4 border-red-600 text-red-700 p-3 mb-4" style={{ borderRadius: '0' }}>
+                            <p style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.8em' }}>
+                                {error}
+                            </p>
+                        </div>
+                    )}
 
-                {users.length > 0 && (
-                    <div className="mt-2">
-                        <p className="text-sm text-gray-600 mb-1">Click to add:</p>
-                        <div className="grid gap-2">
-                            {users.map((u) => (
-                                <div
-                                    key={u.id}
-                                    className={`p-2 border rounded cursor-pointer hover:bg-gray-100 flex justify-between items-center ${
-                                        selectedUsers.some((s) => s.id === u.id) ? "bg-green-50" : ""
-                                    }`}
-                                    onClick={() => handleSelectUser(u)}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div>
+                            <label
+                                className="block text-sm font-bold mb-2 text-gray-700"
+                                style={{ fontFamily: "'Press Start 2P', cursive" }}
+                            >
+                                Chatroom Name*
+                            </label>
+                            <input
+                                className="w-full border-2 border-black px-3 py-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                style={{
+                                    borderRadius: '0',
+                                    fontFamily: "'Press Start 2P', cursive",
+                                    fontSize: '0.8em'
+                                }}
+                                value={channel}
+                                onChange={(e) => setChannel(e.target.value)}
+                                placeholder="Chatroom Name"
+                                maxLength="100"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                className="block text-sm font-bold mb-2 text-gray-700"
+                                style={{ fontFamily: "'Press Start 2P', cursive" }}
+                            >
+                                Description
+                            </label>
+                            <textarea
+                                className="w-full border-2 border-black px-3 py-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-24"
+                                style={{
+                                    borderRadius: '0',
+                                    fontFamily: "'Press Start 2P', cursive",
+                                    fontSize: '0.8em'
+                                }}
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="Description (optional)"
+                                maxLength="500"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    className="block text-sm font-bold mb-2 text-gray-700"
+                                    style={{ fontFamily: "'Press Start 2P', cursive" }}
                                 >
-                                    {u.firstname} {u.lastname}
-                                    {selectedUsers.some((s) => s.id === u.id) && <span className="text-green-600">✓</span>}
+                                    Date & time *
+                                </label>
+                                <input
+                                    type="datetime-local"
+                                    className="w-full border-2 border-black px-3 py-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                    style={{
+                                        borderRadius: '0',
+                                        fontFamily: "'Press Start 2P', cursive",
+                                        fontSize: '0.8em'
+                                    }}
+                                    value={date}
+                                    onChange={(e) => setDate(e.target.value)}
+                                    min={new Date().toISOString().slice(0, 16)}
+                                />
+                            </div>
+
+                            <div>
+                                <label
+                                    className="block text-sm font-bold mb-2 text-gray-700"
+                                    style={{ fontFamily: "'Press Start 2P', cursive" }}
+                                >
+                                    Life span (days) *
+                                </label>
+                                <input
+                                    type="number"
+                                    className="w-full border-2 border-black px-3 py-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                    style={{
+                                        borderRadius: '0',
+                                        fontFamily: "'Press Start 2P', cursive",
+                                        fontSize: '0.8em'
+                                    }}
+                                    min="1"
+                                    max="365"
+                                    value={lifespan}
+                                    onChange={(e) => setLifespan(e.target.value)}
+                                    placeholder="Ex: 7"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label
+                                className="block text-sm font-bold mb-2 text-gray-700"
+                                style={{ fontFamily: "'Press Start 2P', cursive" }}
+                            >
+                                Search for a user
+                            </label>
+                            <input
+                                type="text"
+                                className="w-full border-2 border-black px-3 py-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                style={{
+                                    borderRadius: '0',
+                                    fontFamily: "'Press Start 2P', cursive",
+                                    fontSize: '0.8em'
+                                }}
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Username"
+                            />
+                            {searchLoading && (
+                                <p
+                                    className="text-sm text-gray-400 mt-1"
+                                    style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.7em' }}
+                                >
+                                    Searching...
+                                </p>
+                            )}
+                        </div>
+
+                        {users.length > 0 && (
+                            <div className="mt-4">
+                                <p
+                                    className="text-sm text-gray-600 mb-3 font-bold"
+                                    style={{ fontFamily: "'Press Start 2P', cursive" }}
+                                >
+                                    Click to add:
+                                </p>
+                                <div className="grid gap-2">
+                                    {users.map((u) => (
+                                        <div
+                                            key={u.id}
+                                            className={`p-3 border-2 border-black cursor-pointer hover:bg-gray-100 flex justify-between items-center ${
+                                                selectedUsers.some((s) => s.id === u.id) ? "bg-green-100" : "bg-white"
+                                            }`}
+                                            style={{ borderRadius: '0' }}
+                                            onClick={() => handleSelectUser(u)}
+                                        >
+                                            <span style={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.8em' }}>
+                                                {u.firstname} {u.lastname}
+                                            </span>
+                                            {selectedUsers.some((s) => s.id === u.id) && (
+                                                <span
+                                                    className="text-green-600 font-bold"
+                                                    style={{ fontFamily: "'Press Start 2P', cursive" }}
+                                                >
+                                                    ✓
+                                                </span>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                            </div>
+                        )}
 
-                {selectedUsers.length > 0 && (
-                    <div className="mt-4">
-                        <p className="text-sm text-gray-600 mb-1">User selected:</p>
-                        <div className="flex flex-wrap gap-2">
-                            {selectedUsers.map((u) => (
-                                <span
-                                    key={u.id}
-                                    onClick={() => handleRemoveUser(u.id)}
-                                    className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-200"
+                        {selectedUsers.length > 0 && (
+                            <div className="mt-6">
+                                <p
+                                    className="text-sm text-gray-600 mb-3 font-bold"
+                                    style={{ fontFamily: "'Press Start 2P', cursive" }}
                                 >
-                                    {u.firstname} {u.lastname}
-                                </span>
-                            ))}
+                                    User selected:
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedUsers.map((u) => (
+                                        <span
+                                            key={u.id}
+                                            onClick={() => handleRemoveUser(u.id)}
+                                            className="bg-blue-100 text-blue-800 px-3 py-2 border-2 border-blue-600 text-sm cursor-pointer hover:bg-blue-200"
+                                            style={{
+                                                borderRadius: '0',
+                                                fontFamily: "'Press Start 2P', cursive",
+                                                fontSize: '0.7em'
+                                            }}
+                                        >
+                                            {u.firstname} {u.lastname}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="mt-8 flex gap-4 justify-center">
+                            <button
+                                type="submit"
+                                disabled={loading || selectedUsers.length === 0}
+                                className={`px-6 py-3 border-2 border-black text-white font-bold ${
+                                    loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+                                }`}
+                                style={{
+                                    borderRadius: '0',
+                                    fontFamily: "'Press Start 2P', cursive"
+                                }}
+                            >
+                                {loading ? "Edition..." : "Edit Chatroom"}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={resetForm}
+                                className="px-6 py-3 border-2 border-black text-gray-700 bg-white hover:bg-gray-100 font-bold"
+                                style={{
+                                    borderRadius: '0',
+                                    fontFamily: "'Press Start 2P', cursive"
+                                }}
+                            >
+                                Reset
+                            </button>
                         </div>
-                    </div>
-                )}
-
-                <div className="mt-6 flex gap-4">
-                    <button
-                        type="submit"
-                        disabled={loading || selectedUsers.length === 0}
-                        className={`px-4 py-2 rounded text-white font-semibold ${
-                            loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-                        }`}
-                    >
-                        {loading ? "Edition..." : "Edite Chatroom"}
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={resetForm}
-                        className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
-                    >
-                        Reset
-                    </button>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     );
 }
