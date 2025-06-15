@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,10 +64,33 @@ public class ChatroomRestController {
         return ResponseEntity.ok(servicesRequest.getMyChatroomsFromUserId(usersId));
     }
 
+    public static boolean isChatroomValid(Chatroom chatroom) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiration = chatroom.getDate().plusDays(chatroom.getLifespan());
+        return now.isBefore(expiration);
+    }
+
+    public static boolean isChatroomFutur(Chatroom chatroom) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = chatroom.getDate();
+        return now.isBefore(start);
+    }
+
     @GetMapping("/invitedChatrooms")
     public ResponseEntity<List<Chatroom>> getinvitedUsersChatrooms(
             @RequestParam(value = "id", required = true) int usersId) {
-        return ResponseEntity.ok(servicesRequest.getInvitedChatroomsFromUserId(usersId));
+        List<Chatroom> listChatroom = servicesRequest.getInvitedChatroomsFromUserId(usersId);
+        List<Chatroom> listValideChatroom = new ArrayList<>();
+        for (Chatroom chatroom : listChatroom) {
+            if (!isChatroomValid(chatroom)) {
+                servicesRequest.deleteChatroomAndUserChats(chatroom.getId());
+            } else {
+                if (!isChatroomFutur(chatroom)) {
+                   listValideChatroom.add(chatroom);
+                }
+            }
+        }
+        return ResponseEntity.ok(listValideChatroom);
     }
 
     @DeleteMapping("/delete/{id}")
