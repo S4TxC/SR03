@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Header from './Header';
 import SideBar from './SideBar';
-import { useParams } from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import { useAuth } from "./Authentication";
 import axios from "axios";
 
@@ -31,8 +31,21 @@ const Chat = () => {
 
     useEffect(() => {
         if (!user?.id) return;
-
         const username = user.firstname || 'Guest';
+        // Tester si l'utilisateur est membre du chat
+        axios.get(`http://localhost:8080/api/chatroom/canAccess`, {
+            params: {
+                chatroomId: id,
+                userId: user.id
+            }
+        })
+            .then((res) => {
+                if (!res.data.access) {
+                    setTimeout(() => {
+                        window.location.href = "/userMenu";
+                    }, 5);
+                }
+            })
 
         const websocket = new WebSocket(
             `ws://localhost:8080/ws/chat?room=${id}&user=${username}`

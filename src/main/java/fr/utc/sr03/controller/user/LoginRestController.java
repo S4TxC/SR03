@@ -28,8 +28,8 @@ public class LoginRestController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
         Users user = usersRepository.findByEmail(loginRequest.getEmail());
-
-        if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+        //Si user existe et password est correct et que user est actif alors connexion autorisée
+        if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()) && user.isStatus()) {
             sessionService.createSession(session, user);
 
             Map<String, Object> response = new HashMap<>();
@@ -52,6 +52,7 @@ public class LoginRestController {
         return ResponseEntity.ok().body("Successfully logged out");
     }
 
+    //Envoie des infos utiles sur le user
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpSession session) {
         if (session.getAttribute("userId") == null) {

@@ -96,6 +96,19 @@ public class ServicesRequest {
                 .executeUpdate();
     }
 
+    public boolean userHasAccess(int chatroomId, int userId) {
+        String req = "SELECT COUNT(uc) FROM UserChat uc " +
+                "WHERE uc.chatroom.id = :chatroomId AND " +
+                "(uc.user.id = :userId)";
+
+        Long count = em.createQuery(req, Long.class)
+                .setParameter("chatroomId", chatroomId)
+                .setParameter("userId", userId)
+                .getSingleResult();
+
+        return count > 0;
+    }
+
     public List<Chatroom> getMyChatroomsFromUserId(int userId) {
         return em.createQuery(
                         "SELECT uc.chatroom FROM UserChat uc WHERE uc.idinvit.id = :userId",
